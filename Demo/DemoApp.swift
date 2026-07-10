@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct DemoApp: App {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @StateObject private var store = StoreManager()
 
     var body: some Scene {
         WindowGroup {
@@ -12,5 +13,6 @@ struct DemoApp: App {
                 OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
             }
         }
+        .environmentObject(store)
     }
 }
