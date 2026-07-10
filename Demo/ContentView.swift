@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var store: StoreManager
     @State private var isShowingPaywall = false
+    @State private var isShowingOnboarding = false
 
     var body: some View {
         NavigationStack {
@@ -34,12 +35,24 @@ struct ContentView: View {
                     .tint(.black)
                     .padding(.top, 8)
                 }
+
+                Button("Show Onboarding") {
+                    isShowingOnboarding = true
+                }
+                .buttonStyle(.bordered)
+                .padding(.top, 8)
             }
             .padding()
             .navigationTitle("Demo")
         }
         .sheet(isPresented: $isShowingPaywall) {
             PaywallView()
+        }
+        .fullScreenCover(isPresented: $isShowingOnboarding) {
+            OnboardingView(hasCompletedOnboarding: Binding(
+                get: { !isShowingOnboarding },
+                set: { isShowingOnboarding = !$0 }
+            ))
         }
     }
 }
