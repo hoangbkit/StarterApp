@@ -24,3 +24,29 @@ jobs:
             -scheme Demo \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Archive for device (unsigned, for AltStore sideloading)
+        run: |
+          xcodebuild archive \
+            -project Demo.xcodeproj \
+            -scheme Demo \
+            -archivePath build/Demo.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: Package .ipa
+        run: |
+          mkdir -p build/Payload
+          cp -R build/Demo.xcarchive/Products/Applications/Demo.app build/Payload/
+          cd build
+          zip -r Demo.ipa Payload
+          cd ..
+
+      - name: Upload .ipa artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Demo-ipa
+          path: build/Demo.ipa
+          retention-days: 14
