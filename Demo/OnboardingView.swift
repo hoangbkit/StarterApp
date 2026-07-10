@@ -51,12 +51,17 @@ struct OnboardingView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
-
-            if pageIndex < onboardingPages.count - 1 {
+        }
+        .safeAreaInset(edge: .top) {
+            HStack {
+                Spacer()
                 Button("Skip") {
                     hasCompletedOnboarding = true
                 }
-                .padding(.bottom, 12)
+                .padding(.trailing, 20)
+                .padding(.top, 12)
+                .opacity(pageIndex < onboardingPages.count - 1 ? 1 : 0)
+                .disabled(pageIndex >= onboardingPages.count - 1)
             }
         }
     }

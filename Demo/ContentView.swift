@@ -4,6 +4,7 @@ struct ContentView: View {
     @EnvironmentObject private var store: StoreManager
     @State private var isShowingPaywall = false
     @State private var isShowingOnboarding = false
+    @State private var isShowingSettings = false
 
     var body: some View {
         NavigationStack {
@@ -44,9 +45,21 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("Demo")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        isShowingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            }
         }
         .sheet(isPresented: $isShowingPaywall) {
             PaywallView()
+        }
+        .sheet(isPresented: $isShowingSettings) {
+            SettingsView()
         }
         .fullScreenCover(isPresented: $isShowingOnboarding) {
             OnboardingView(hasCompletedOnboarding: Binding(
