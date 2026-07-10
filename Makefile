@@ -22,6 +22,11 @@ BUNDLE_ID         := com.hoangbkit.Demo
 BUILD_DIR         := build
 APP_PATH          := $(BUILD_DIR)/Build/Products/$(CONFIGURATION)-iphoneos/Demo.app
 
+ifdef DEVICE_NAME
+DEVICE_ID := $(shell xcrun xctrace list devices 2>/dev/null \
+	| grep -i -- "$(DEVICE_NAME)" | head -1 | sed -n 's/.*(\(.*\)).*/\1/p')
+endif
+
 ifdef DEVICE_ID
 DESTINATION := id=$(DEVICE_ID)
 else ifdef DEVICE_NAME
@@ -45,7 +50,7 @@ help:
 	@echo "  make clean                              Remove local build output"
 	@echo ""
 	@echo "Optional: TEAM_ID=<team id> if your Apple ID has multiple teams"
-	@echo "You can use DEVICE_NAME=\"Your iPhone\" instead of DEVICE_ID if you prefer."
+	@echo "You can use DEVICE_NAME=\"SE2\" instead of DEVICE_ID if you prefer."
 
 devices:
 	@echo "Connected devices:"
@@ -69,18 +74,18 @@ build:
 
 install:
 	@if [ -z "$(DEVICE_ID)" ]; then \
-		echo "Error: pass DEVICE_ID=<identifier> (run 'make devices' to find it)"; \
+		echo "Error: pass DEVICE_ID=<identifier> or DEVICE_NAME=\"SE2\" (run 'make devices' to find it)"; \
 		exit 1; \
 	fi
 	@if [ ! -d "$(APP_PATH)" ]; then \
-		echo "Error: no build found at $(APP_PATH). Run 'make build DEVICE_ID=$(DEVICE_ID)' first."; \
+		echo "Error: no build found at $(APP_PATH). Run 'make build DEVICE_NAME=$(DEVICE_NAME)' first."; \
 		exit 1; \
 	fi
 	xcrun devicectl device install app --device $(DEVICE_ID) $(APP_PATH)
 
 launch:
 	@if [ -z "$(DEVICE_ID)" ]; then \
-		echo "Error: pass DEVICE_ID=<identifier> (run 'make devices' to find it)"; \
+		echo "Error: pass DEVICE_ID=<identifier> or DEVICE_NAME=\"SE2\" (run 'make devices' to find it)"; \
 		exit 1; \
 	fi
 	xcrun devicectl device process launch --device $(DEVICE_ID) $(BUNDLE_ID)

@@ -27,22 +27,61 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		000000000000000000000012 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		000000000000000000000012 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		000000000000000000000004 = {isa = PBXGroup; children = (000000000000000000000006 /* Demo */, 000000000000000000000005 /* Products */); sourceTree = "<group>"; };
-		000000000000000000000005 /* Products */ = {isa = PBXGroup; children = (000000000000000000000003 /* Demo.app */); name = Products; sourceTree = "<group>"; };
-		000000000000000000000006 /* Demo */ = {isa = PBXGroup; children = (000000000000000000000007 /* DemoApp.swift */, 000000000000000000000008 /* ContentView.swift */, 000000000000000000000009 /* OnboardingView.swift */, 000000000000000000000024 /* StoreManager.swift */, 000000000000000000000025 /* PaywallView.swift */, 000000000000000000000010 /* Assets.xcassets */, 000000000000000000000026 /* Configuration.storekit */); path = Demo; sourceTree = "<group>"; };
+		000000000000000000000004 = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000006 /* Demo */,
+				000000000000000000000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		000000000000000000000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000003 /* Demo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		000000000000000000000006 /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000007 /* DemoApp.swift */,
+				000000000000000000000008 /* ContentView.swift */,
+				000000000000000000000009 /* OnboardingView.swift */,
+				000000000000000000000024 /* StoreManager.swift */,
+				000000000000000000000025 /* PaywallView.swift */,
+				000000000000000000000010 /* Assets.xcassets */,
+				000000000000000000000026 /* Configuration.storekit */,
+			);
+			path = Demo;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
 		000000000000000000000002 /* Demo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 000000000000000000000021 /* Build configuration list for PBXNativeTarget "Demo" */;
-			buildPhases = (000000000000000000000011 /* Sources */, 000000000000000000000012 /* Frameworks */, 000000000000000000000013 /* Resources */);
-			buildRules = ();
-			dependencies = ();
+			buildPhases = (
+				000000000000000000000011 /* Sources */,
+				000000000000000000000012 /* Frameworks */,
+				000000000000000000000013 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
 			name = Demo;
 			productName = Demo;
 			productReference = 000000000000000000000003 /* Demo.app */;
@@ -67,21 +106,44 @@
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (en, Base);
+			knownRegions = (
+				en,
+				Base,
+			);
 			mainGroup = 000000000000000000000004;
 			productRefGroup = 000000000000000000000005 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (000000000000000000000002 /* Demo */);
+			targets = (
+				000000000000000000000002 /* Demo */,
+			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		000000000000000000000013 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (000000000000000000000017 /* Assets.xcassets in Resources */); runOnlyForDeploymentPostprocessing = 0; };
+		000000000000000000000013 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000017 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		000000000000000000000011 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (000000000000000000000014 /* DemoApp.swift in Sources */, 000000000000000000000015 /* ContentView.swift in Sources */, 000000000000000000000016 /* OnboardingView.swift in Sources */, 000000000000000000000027 /* StoreManager.swift in Sources */, 000000000000000000000028 /* PaywallView.swift in Sources */); runOnlyForDeploymentPostprocessing = 0; };
+		000000000000000000000011 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000014 /* DemoApp.swift in Sources */,
+				000000000000000000000015 /* ContentView.swift in Sources */,
+				000000000000000000000016 /* OnboardingView.swift in Sources */,
+				000000000000000000000027 /* StoreManager.swift in Sources */,
+				000000000000000000000028 /* PaywallView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -100,7 +162,10 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)");
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
@@ -140,16 +205,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J458WW3452;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.hoangbkit.Demo";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoangbkit.Demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -163,16 +231,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J458WW3452;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.hoangbkit.Demo";
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoangbkit.Demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -185,13 +256,19 @@
 /* Begin XCConfigurationList section */
 		000000000000000000000018 /* Build configuration list for PBXProject "Demo" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (000000000000000000000019 /* Debug */, 000000000000000000000020 /* Release */);
+			buildConfigurations = (
+				000000000000000000000019 /* Debug */,
+				000000000000000000000020 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		000000000000000000000021 /* Build configuration list for PBXNativeTarget "Demo" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (000000000000000000000022 /* Debug */, 000000000000000000000023 /* Release */);
+			buildConfigurations = (
+				000000000000000000000022 /* Debug */,
+				000000000000000000000023 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
