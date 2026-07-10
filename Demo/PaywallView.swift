@@ -36,12 +36,23 @@ struct PaywallView: View {
     }
 
     private var isPurchasing: Bool {
-        store.purchaseState == .purchasing
+        store.isPurchasing(selectedProductID)
     }
 
-    private var errorMessage: String? {
-        if case .failed(let message) = store.purchaseState { return message }
-        return nil
+    private var alertTitle: String {
+        if store.purchaseState == .pendingApproval { return "Waiting for Approval" }
+        return "Something went wrong"
+    }
+
+    private var alertMessage: String? {
+        switch store.purchaseState {
+        case .failed(let message):
+            return message
+        case .pendingApproval:
+            return "This purchase needs approval from your family organizer. You'll be notified once it's approved."
+        default:
+            return nil
+        }
     }
 
     var body: some View {
@@ -63,15 +74,15 @@ struct PaywallView: View {
             if isPro { dismiss() }
         }
         .alert(
-            "Something went wrong",
+            alertTitle,
             isPresented: Binding(
-                get: { errorMessage != nil },
+                get: { alertMessage != nil },
                 set: { if !$0 { store.purchaseState = .idle } }
             )
         ) {
             Button("OK", role: .cancel) { store.purchaseState = .idle }
         } message: {
-            Text(errorMessage ?? "")
+            Text(alertMessage ?? "")
         }
     }
 
@@ -119,9 +130,24 @@ struct PaywallView: View {
             }
 
             if store.products.isEmpty {
-                ProgressView()
+                if case .failed(let message) = store.productsState {
+                    VStack(spacing: 12) {
+                        Text(message)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                        Button("Try Again") {
+                            Task { await store.loadProducts() }
+                        }
+                        .buttonStyle(.bordered)
+                    }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 24)
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                }
             } else {
                 HStack(spacing: 12) {
                     if let monthly {
@@ -250,6 +276,7 @@ struct PaywallView: View {
                 Button("Restore Purchases") {
                     Task { await store.restorePurchases() }
                 }
+                .disabled(store.isPurchasing(nil))
             }
             .font(.caption)
         }

@@ -6,7 +6,6 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
 
-    @State private var isRestoring = false
     @State private var isShowingOfferCodeSheet = false
     @State private var restoreMessage: String?
 
@@ -20,12 +19,12 @@ struct SettingsView: View {
                         HStack {
                             Label("Restore Purchases", systemImage: "arrow.clockwise")
                             Spacer()
-                            if isRestoring {
+                            if store.isPurchasing(nil) {
                                 ProgressView()
                             }
                         }
                     }
-                    .disabled(isRestoring)
+                    .disabled(store.isPurchasing(nil))
 
                     Button {
                         isShowingOfferCodeSheet = true
@@ -95,10 +94,13 @@ struct SettingsView: View {
     }
 
     private func restore() async {
-        isRestoring = true
         await store.restorePurchases()
-        isRestoring = false
-        restoreMessage = store.isPro ? "Your purchases have been restored." : "No previous purchases were found."
+        if case .failed(let message) = store.purchaseState {
+            restoreMessage = message
+            store.purchaseState = .idle
+        } else {
+            restoreMessage = store.isPro ? "Your purchases have been restored." : "No previous purchases were found."
+        }
     }
 }
 
