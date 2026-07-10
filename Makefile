@@ -3,6 +3,7 @@
 #
 # Quick start:
 #   make devices                        # find your iPhone's identifier
+#   make deploy se2                     # build + install + launch on device named "se2"
 #   make deploy DEVICE_ID=<identifier>   # build + install + launch
 #
 # One-time prerequisite (can't be avoided, it's an Apple requirement, not an
@@ -21,6 +22,18 @@ CONFIGURATION     := Debug
 BUNDLE_ID         := com.hoangbkit.Demo
 BUILD_DIR         := build
 APP_PATH          := $(BUILD_DIR)/Build/Products/$(CONFIGURATION)-iphoneos/Demo.app
+
+# Allow "make deploy se2" as shorthand for "make deploy DEVICE_NAME=se2"
+# (also works for build/install/launch). The extra word is turned into a
+# no-op target so make doesn't complain about "No rule to make target".
+DEVICE_TARGETS := deploy build install launch
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),$(DEVICE_TARGETS)))
+EXTRA_ARG := $(word 2,$(MAKECMDGOALS))
+ifneq (,$(EXTRA_ARG))
+DEVICE_NAME := $(EXTRA_ARG)
+$(eval $(EXTRA_ARG):;@:)
+endif
+endif
 
 ifdef DEVICE_NAME
 DEVICE_ID := $(shell xcrun xctrace list devices 2>/dev/null \
@@ -50,7 +63,8 @@ help:
 	@echo "  make clean                              Remove local build output"
 	@echo ""
 	@echo "Optional: TEAM_ID=<team id> if your Apple ID has multiple teams"
-	@echo "You can use DEVICE_NAME=\"SE2\" instead of DEVICE_ID if you prefer."
+	@echo "You can use DEVICE_NAME=\"SE2\" instead of DEVICE_ID if you prefer,"
+	@echo "or just pass the name directly: make deploy se2"
 
 devices:
 	@echo "Connected devices:"
