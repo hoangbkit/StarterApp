@@ -22,11 +22,12 @@ private let onboardingPages: [OnboardingPage] = [
         systemImage: "checkmark.seal.fill",
         title: "You're ready",
         subtitle: "Tap Get Started to jump into the app."
-    )
+    ),
 ]
 
 struct OnboardingView: View {
-    @Binding var hasCompletedOnboarding: Bool
+    let onComplete: () -> Void
+
     @State private var pageIndex = 0
 
     var body: some View {
@@ -55,13 +56,11 @@ struct OnboardingView: View {
         .safeAreaInset(edge: .top) {
             HStack {
                 Spacer()
-                Button("Skip") {
-                    hasCompletedOnboarding = true
-                }
-                .padding(.trailing, 20)
-                .padding(.top, 12)
-                .opacity(pageIndex < onboardingPages.count - 1 ? 1 : 0)
-                .disabled(pageIndex >= onboardingPages.count - 1)
+                Button("Skip", action: onComplete)
+                    .padding(.trailing, 20)
+                    .padding(.top, 12)
+                    .opacity(pageIndex < onboardingPages.count - 1 ? 1 : 0)
+                    .disabled(pageIndex >= onboardingPages.count - 1)
             }
         }
     }
@@ -72,7 +71,7 @@ struct OnboardingView: View {
                 pageIndex += 1
             }
         } else {
-            hasCompletedOnboarding = true
+            onComplete()
         }
     }
 }
@@ -108,5 +107,5 @@ private struct OnboardingPageView: View {
 }
 
 #Preview {
-    OnboardingView(hasCompletedOnboarding: .constant(false))
+    OnboardingView(onComplete: {})
 }

@@ -1,8 +1,9 @@
-import SwiftUI
+import AppFoundation
 import StoreKit
+import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject private var store: StoreManager
+    @Environment(PurchaseController.self) private var purchases
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
 
@@ -19,22 +20,42 @@ struct SettingsView: View {
                         HStack {
                             Label("Restore Purchases", systemImage: "arrow.clockwise")
                             Spacer()
-                            if store.isPurchasing(nil) {
+                            if purchases.isBusy {
                                 ProgressView()
                             }
                         }
                     }
-                    .disabled(store.isPurchasing(nil))
+                    .disabled(purchases.isBusy)
 
                     Button {
                         isShowingOfferCodeSheet = true
                     } label: {
                         Label("Redeem Code", systemImage: "gift")
                     }
+                } header: {
+                    Text("Purchases")
                 }
 
+                #if DEBUG
+                if purchases.isUsingSimulatedPurchases {
+                    Section {
+                        LabeledContent("Purchase Mode", value: "Simulated")
+
+                        Button("Reset Simulated Purchases", role: .destructive) {
+                            Task {
+                                await purchases.resetSimulatedPurchases()
+                                restoreMessage = "Simulated purchases were reset."
+                            }
+                        }
+                        .disabled(purchases.isBusy)
+                    } header: {
+                        Text("Debug")
+                    }
+                }
+                #endif
+
                 Section {
-                    Link(destination: URL(string: "https://example.com/support")!) {
+                    Link(destination: AppConfiguration.supportURL) {
                         Label("Contact Support", systemImage: "questionmark.circle")
                     }
 
@@ -44,17 +65,17 @@ struct SettingsView: View {
                         Label("Rate the App", systemImage: "star")
                     }
 
-                    ShareLink(item: URL(string: "https://example.com")!) {
+                    ShareLink(item: AppConfiguration.supportURL) {
                         Label("Share App", systemImage: "square.and.arrow.up")
                     }
                 }
 
                 Section {
-                    Link(destination: URL(string: "https://example.com/privacy")!) {
+                    Link(destination: AppConfiguration.privacyURL) {
                         Label("Privacy Policy", systemImage: "hand.raised")
                     }
 
-                    Link(destination: URL(string: "https://example.com/terms")!) {
+                    Link(destination: AppConfiguration.termsURL) {
                         Label("Terms of Service", systemImage: "doc.text")
                     }
                 }
@@ -72,14 +93,19 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("Done") {
+                        dismiss()
+                    }
                 }
             }
             .offerCodeRedemption(isPresented: $isShowingOfferCodeSheet)
-            .alert("Restore Purchases", isPresented: Binding(
-                get: { restoreMessage != nil },
-                set: { if !$0 { restoreMessage = nil } }
-            )) {
+            .alert(
+                "Restore Purchases",
+                isPresented: Binding(
+                    get: { restoreMessage != nil },
+                    set: { if !$0 { restoreMessage = nil } }
+                )
+            ) {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(restoreMessage ?? "")
@@ -94,17 +120,19 @@ struct SettingsView: View {
     }
 
     private func restore() async {
-        await store.restorePurchases()
-        if case .failed(let message) = store.purchaseState {
-            restoreMessage = message
-            store.purchaseState = .idle
-        } else {
-            restoreMessage = store.isPro ? "Your purchases have been restored." : "No previous purchases were found."
+        switch await purchases.restorePurchases() {
+        case .restored:
+            restoreMessage = "Your purchases have been restored."
+        case .nothingToRestore:
+            restoreMessage = "No previous purchases were found."
+        case .failed(let failure):
+            restoreMessage = failure.message
+            purchases.clearActivity()
         }
     }
 }
 
 #Preview {
     SettingsView()
-        .environmentObject(StoreManager())
+        .environment(AppConfiguration.makePreviewPurchaseController())
 }

@@ -1,6 +1,9 @@
+import AppFoundation
+import Foundation
 import XCTest
 @testable import Demo
 
+@MainActor
 final class DemoTests: XCTestCase {
     func testStarterConfigurationUsesExpectedIdentity() {
         XCTAssertEqual(AppConfiguration.displayName, "Demo")
@@ -12,5 +15,79 @@ final class DemoTests: XCTestCase {
         XCTAssertEqual(AppConfiguration.supportURL.scheme, "https")
         XCTAssertEqual(AppConfiguration.privacyURL.scheme, "https")
         XCTAssertEqual(AppConfiguration.termsURL.scheme, "https")
+    }
+
+    func testPurchaseConfigurationUsesYearlyAsPreferredProduct() {
+        XCTAssertEqual(
+            AppConfiguration.purchaseConfiguration.productIDs,
+            [
+                AppConfiguration.monthlyProductID,
+                AppConfiguration.yearlyProductID,
+            ]
+        )
+        XCTAssertEqual(
+            AppConfiguration.purchaseConfiguration.preferredProductID,
+            AppConfiguration.yearlyProductID
+        )
+        XCTAssertEqual(
+            AppConfiguration.purchaseConfiguration.entitledProductIDs,
+            Set([
+                AppConfiguration.monthlyProductID,
+                AppConfiguration.yearlyProductID,
+            ])
+        )
+    }
+
+    func testRequestedSimulationIsSafeForCurrentBuild() {
+        let effectiveMode = PurchaseServiceFactory.effectiveMode(for: .simulated)
+
+        #if DEBUG
+        XCTAssertEqual(effectiveMode, .simulated)
+        #else
+        XCTAssertEqual(effectiveMode, .live)
+        #endif
+    }
+
+    func testRouterStartsWithOnboardingAndPersistsCompletion() {
+        let suiteName = "DemoTests.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            XCTFail("Could not create isolated UserDefaults.")
+            return
+        }
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let router = AppRouter(defaults: defaults)
+        XCTAssertEqual(router.launchState, .preparing)
+
+        router.prepare()
+        XCTAssertEqual(router.launchState, .onboarding)
+
+        router.completeOnboarding()
+        XCTAssertEqual(router.launchState, .main)
+
+        let relaunchedRouter = AppRouter(defaults: defaults)
+        relaunchedRouter.prepare()
+        XCTAssertEqual(relaunchedRouter.launchState, .main)
+    }
+
+    func testShowingOnboardingDoesNotForgetCompletion() {
+        let suiteName = "DemoTests.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            XCTFail("Could not create isolated UserDefaults.")
+            return
+        }
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let router = AppRouter(defaults: defaults)
+        router.prepare()
+        router.completeOnboarding()
+        router.showOnboarding()
+
+        XCTAssertEqual(router.launchState, .onboarding)
+        XCTAssertTrue(defaults.bool(forKey: AppRouter.onboardingCompletionKey))
     }
 }

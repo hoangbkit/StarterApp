@@ -1,10 +1,17 @@
+import AppFoundation
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var store: StoreManager
+    @Environment(PurchaseController.self) private var purchases
+
+    let onShowOnboarding: () -> Void
+
     @State private var isShowingPaywall = false
-    @State private var isShowingOnboarding = false
     @State private var isShowingSettings = false
+
+    init(onShowOnboarding: @escaping () -> Void = {}) {
+        self.onShowOnboarding = onShowOnboarding
+    }
 
     var body: some View {
         NavigationStack {
@@ -23,25 +30,22 @@ struct ContentView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                if store.isPro {
-                    Label("Pro unlocked", systemImage: "star.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.orange)
-                        .padding(.top, 8)
-                } else {
-                    Button("Upgrade to Pro") {
-                        isShowingPaywall = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.black)
-                    .padding(.top, 8)
-                }
+                entitlementContent
 
                 Button("Show Onboarding") {
-                    isShowingOnboarding = true
+                    onShowOnboarding()
                 }
                 .buttonStyle(.bordered)
                 .padding(.top, 8)
+
+                #if DEBUG
+                if purchases.isUsingSimulatedPurchases {
+                    Label("Debug purchase simulator", systemImage: "hammer.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.orange)
+                        .padding(.top, 4)
+                }
+                #endif
             }
             .padding()
             .navigationTitle(AppConfiguration.displayName)
@@ -52,25 +56,46 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "gearshape")
                     }
+                    .accessibilityLabel("Settings")
                 }
             }
         }
         .sheet(isPresented: $isShowingPaywall) {
-            PaywallView()
+            ClaudePaywallView(
+                purchases: purchases,
+                configuration: AppConfiguration.paywallConfiguration
+            )
         }
         .sheet(isPresented: $isShowingSettings) {
             SettingsView()
         }
-        .fullScreenCover(isPresented: $isShowingOnboarding) {
-            OnboardingView(hasCompletedOnboarding: Binding(
-                get: { !isShowingOnboarding },
-                set: { isShowingOnboarding = !$0 }
-            ))
+    }
+
+    @ViewBuilder
+    private var entitlementContent: some View {
+        switch purchases.entitlementState {
+        case .checking:
+            ProgressView("Checking Pro access…")
+                .padding(.top, 8)
+
+        case .inactive:
+            Button("Upgrade to Pro") {
+                isShowingPaywall = true
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.black)
+            .padding(.top, 8)
+
+        case .active:
+            Label("Pro unlocked", systemImage: "star.fill")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.orange)
+                .padding(.top, 8)
         }
     }
 }
 
 #Preview {
     ContentView()
-        .environmentObject(StoreManager())
+        .environment(AppConfiguration.makePreviewPurchaseController())
 }

@@ -2,6 +2,7 @@ PROJECT := Demo.xcodeproj
 SCHEME := Demo
 UI_TEST_SCHEME := Demo UI Tests
 CONFIGURATION ?= Debug
+BILLING ?= live
 BUNDLE_ID := com.hoangbkit.demo
 BUILD_DIR := build
 APP_PATH := $(BUILD_DIR)/Build/Products/$(CONFIGURATION)-iphoneos/Demo.app
@@ -36,17 +37,19 @@ endif
 
 help:
 	@echo "Targets:"
-	@echo "  make generate                         Generate Demo.xcodeproj with XcodeGen"
-	@echo "  make open                             Generate and open the project"
-	@echo "  make build                            Build for a generic iOS Simulator"
-	@echo "  make test                             Run unit tests on an available iPhone Simulator"
-	@echo "  make ui-test                          Run UI tests on an available iPhone Simulator"
-	@echo "  make devices                          List connected devices"
-	@echo "  make deploy se2                       Build, install, and launch on device named se2"
-	@echo "  make deploy DEVICE_ID=<identifier>    Build, install, and launch on a device"
-	@echo "  make clean                            Remove generated project and build output"
+	@echo "  make generate                                  Generate Demo.xcodeproj with XcodeGen"
+	@echo "  make open                                      Generate and open the project"
+	@echo "  make build                                     Build for a generic iOS Simulator"
+	@echo "  make test                                      Run unit tests on an available iPhone Simulator"
+	@echo "  make ui-test                                   Run UI tests on an available iPhone Simulator"
+	@echo "  make devices                                   List connected devices"
+	@echo "  make deploy se2                                Build, install, and launch with live StoreKit"
+	@echo "  make deploy se2 BILLING=simulated              Launch Debug with simulated purchases"
+	@echo "  make deploy DEVICE_ID=<id> BILLING=simulated   Deploy simulated billing to a device"
+	@echo "  make clean                                     Remove generated project and build output"
 	@echo ""
 	@echo "Optional: TEAM_ID=<team id> overrides the configured signing team."
+	@echo "BILLING accepts live or simulated. Release builds always use live StoreKit."
 
 generate:
 	@command -v xcodegen >/dev/null 2>&1 || { \
@@ -128,7 +131,12 @@ launch:
 		echo "Pass DEVICE_ID=<identifier> or DEVICE_NAME=<name>."; \
 		exit 1; \
 	fi
-	xcrun devicectl device process launch --device "$(DEVICE_ID)" "$(BUNDLE_ID)"
+	@if [ "$(BILLING)" != "live" ] && [ "$(BILLING)" != "simulated" ]; then \
+		echo "BILLING must be live or simulated."; \
+		exit 1; \
+	fi
+	DEVICECTL_CHILD_APPFOUNDATION_PURCHASE_MODE="$(BILLING)" \
+		xcrun devicectl device process launch --device "$(DEVICE_ID)" "$(BUNDLE_ID)"
 
 deploy: build install launch
 

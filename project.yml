@@ -72,6 +72,8 @@ targets:
     - DemoTests
     dependencies:
     - target: Demo
+    - package: AppFoundation
+      product: AppFoundation
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.demo.tests
@@ -118,6 +120,36 @@ schemes:
       config: Release
     management:
       shared: true
+      orderHint: 0
+  Demo Simulated:
+    build:
+      targets:
+        Demo: all
+        DemoTests:
+        - test
+    run:
+      config: Debug
+      environmentVariables:
+        APPFOUNDATION_PURCHASE_MODE: simulated
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets:
+      - Demo
+      targets:
+      - name: DemoTests
+        parallelizable: true
+      environmentVariables:
+        APPFOUNDATION_PURCHASE_MODE: simulated
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+    management:
+      shared: true
+      orderHint: 1
   Demo UI Tests:
     build:
       targets:
@@ -132,3 +164,4 @@ schemes:
       - name: DemoUITests
     management:
       shared: true
+      orderHint: 2

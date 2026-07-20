@@ -8,10 +8,11 @@ A reusable, production-oriented iOS starter app for Hoang's projects.
 
 - iOS 26+
 - Swift 6 with strict concurrency
-- SwiftUI
+- SwiftUI and Observation
 - XcodeGen 2.45.4+
 - App, unit-test, and UI-test targets
-- AppFoundation package dependency
+- AppFoundation-backed StoreKit 2 purchases
+- Live, local StoreKit, and Debug simulation modes
 - Local StoreKit configuration
 - Privacy manifest and string-catalog structure
 - Simulator, physical-device, and CI workflows
@@ -51,15 +52,23 @@ GitHub Actions regenerates the project, builds the app, and runs unit tests on e
 
 Your Apple ID must be configured once in Xcode > Settings > Accounts.
 
+Use live StoreKit:
+
 ```bash
 make devices
 make deploy se2
 ```
 
+Use AppFoundation's in-process simulator in a Debug build:
+
+```bash
+make deploy se2 BILLING=simulated
+```
+
 You can also use an identifier directly:
 
 ```bash
-make deploy DEVICE_ID=<identifier>
+make deploy DEVICE_ID=<identifier> BILLING=simulated
 ```
 
 Override the configured signing team when needed:
@@ -68,18 +77,56 @@ Override the configured signing team when needed:
 make deploy se2 TEAM_ID=<team-id>
 ```
 
+`BILLING` accepts `live` or `simulated`. AppFoundation forces Release builds to use live StoreKit even if simulation is requested.
+
 This remains compatible with the existing `mycli deploy` workflow because project generation happens automatically before a build.
+
+## Purchase modes
+
+### Xcode: local StoreKit
+
+Select the **Demo** scheme. It uses `Demo/Configuration.storekit` while AppFoundation runs its live StoreKit service.
+
+### Xcode: in-process simulation
+
+Select the **Demo Simulated** scheme. It sets:
+
+```text
+APPFOUNDATION_PURCHASE_MODE=simulated
+```
+
+This mode works only in Debug and persists simulated entitlement state locally.
+
+### CLI and device deployment
+
+A normal deployment uses live StoreKit:
+
+```bash
+make deploy se2
+```
+
+An explicit simulated deployment passes the purchase mode to the launched app:
+
+```bash
+make deploy se2 BILLING=simulated
+```
+
+### Release safety
+
+`PurchaseServiceFactory` always resolves to live StoreKit in Release builds. Simulated purchase code is not used as the release entitlement source.
 
 ## App-specific configuration
 
-Runtime identity values are collected in `Demo/AppConfiguration.swift`:
+Runtime identity and purchase values are collected in `Demo/App/AppConfiguration.swift`:
 
 - display name
 - App Store ID
 - monthly and yearly product IDs
-- support URL
-- privacy URL
-- terms URL
+- support, privacy, and terms URLs
+- purchase product ordering
+- simulated products
+- paywall copy
+- purchase service construction
 
 Build identity and signing values live in `project.yml`:
 
@@ -88,12 +135,45 @@ Build identity and signing values live in `project.yml`:
 - deployment target
 - Team ID
 - version and build number
+- package dependency
+- shared schemes
 
-## StoreKit testing
+## App launch flow
 
-The shared `Demo` Run scheme uses `Demo/Configuration.storekit`. Its product identifiers currently preserve the existing Demo values.
+`DemoApp` only assembles dependencies. `AppRootView` and `AppRouter` own application routing:
 
-CLI and physical-device builds continue to use live StoreKit unless a later phase explicitly enables AppFoundation's Debug simulator.
+```text
+Preparing
+  → Onboarding
+  → Main app
+  → Recoverable launch error
+```
+
+Onboarding completion is persisted in `UserDefaults`. Re-showing onboarding from the main screen does not erase the completion flag.
+
+## Purchase ownership
+
+Demo owns:
+
+- product identifiers
+- simulated catalog values
+- paywall text and legal URLs
+- when the paywall appears
+- which app features require Pro
+
+AppFoundation owns:
+
+- StoreKit product loading
+- transaction verification
+- transaction observation
+- entitlement evaluation
+- foreground refresh
+- restore behavior
+- pending and failure states
+- Debug simulation
+- paywall mechanics
+
+Demo intentionally contains no app-local StoreKit manager.
 
 ## Production resources
 
@@ -101,20 +181,23 @@ CLI and physical-device builds continue to use live StoreKit unless a later phas
 - Update `Demo/PrivacyInfo.xcprivacy` whenever the app or a linked SDK uses additional required-reason APIs or collects data.
 - Add user-facing strings to `Demo/Localizable.xcstrings`.
 - Replace all `example.com` URLs before release.
+- Replace Demo product identifiers with App Store Connect product identifiers.
 
-The starter currently declares UserDefaults access because onboarding completion uses `@AppStorage`.
+The starter declares UserDefaults access because onboarding completion and Debug purchase simulation persist local state.
 
 ## Current structure
 
 ```text
 Demo/
-├── AppConfiguration.swift
-├── DemoApp.swift
+├── App/
+│   ├── AppConfiguration.swift
+│   ├── AppLaunchState.swift
+│   ├── AppRootView.swift
+│   ├── AppRouter.swift
+│   └── DemoApp.swift
 ├── ContentView.swift
 ├── OnboardingView.swift
-├── PaywallView.swift
 ├── SettingsView.swift
-├── StoreManager.swift
 ├── Configuration.storekit
 ├── PrivacyInfo.xcprivacy
 ├── Localizable.xcstrings
@@ -128,4 +211,8 @@ Makefile
 PLAN.md
 ```
 
-`StoreManager.swift` and the app-local purchase UI remain temporarily for Phase 1 compatibility. Phase 2 will replace them with AppFoundation's purchase implementation.
+## Phase status
+
+- Phase 1: modern XcodeGen project baseline — complete
+- Phase 2: app shell and AppFoundation purchase adoption — complete
+- Phase 3: onboarding, SwiftData, and disposable sample feature — next
