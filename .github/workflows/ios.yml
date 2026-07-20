@@ -1,52 +1,44 @@
-name: iOS Build
+name: iOS Validation
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: macos-14
+  validate:
+    runs-on: macos-26
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show available Xcode versions
-        run: ls /Applications | grep Xcode
-
-      - name: Build (Simulator, unsigned)
+      - name: Show toolchain
         run: |
-          xcodebuild build \
-            -project Demo.xcodeproj \
-            -scheme Demo \
-            -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGNING_ALLOWED=NO
+          xcodebuild -version
+          swift --version
 
-      - name: Archive for device (unsigned, for AltStore sideloading)
+      - name: Install pinned XcodeGen
         run: |
-          xcodebuild archive \
-            -project Demo.xcodeproj \
-            -scheme Demo \
-            -archivePath build/Demo.xcarchive \
-            -destination 'generic/platform=iOS' \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES
+          brew install mint
+          mint install yonaskolb/XcodeGen@2.45.4
+          echo "$HOME/.mint/bin" >> "$GITHUB_PATH"
+          "$HOME/.mint/bin/xcodegen" version
 
-      - name: Package .ipa
-        run: |
-          mkdir -p build/Payload
-          cp -R build/Demo.xcarchive/Products/Applications/Demo.app build/Payload/
-          cd build
-          zip -r Demo.ipa Payload
-          cd ..
+      - name: Generate project
+        run: make generate
 
-      - name: Upload .ipa artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Demo-ipa
-          path: build/Demo.ipa
-          retention-days: 14
+      - name: Build app
+        run: make build
+
+      - name: Run unit tests
+        run: make test

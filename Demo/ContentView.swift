@@ -44,7 +44,7 @@ struct ContentView: View {
                 .padding(.top, 8)
             }
             .padding()
-            .navigationTitle("Demo")
+            .navigationTitle(AppConfiguration.displayName)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {

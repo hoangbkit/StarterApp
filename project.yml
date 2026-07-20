@@ -1,0 +1,134 @@
+name: Demo
+options:
+  minimumXcodeGenVersion: 2.45.4
+  xcodeVersion: '26.0'
+  developmentLanguage: en
+  useBaseInternationalization: true
+  createIntermediateGroups: true
+  groupSortPosition: top
+  schemePathPrefix: ../../
+  deploymentTarget:
+    iOS: '26.0'
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: '26.0'
+    SWIFT_VERSION: '6.0'
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: true
+packages:
+  AppFoundation:
+    url: https://github.com/hoangbkit/AppFoundation.git
+    branch: master
+fileGroups:
+- README.md
+- PLAN.md
+- Demo/Configuration.storekit
+targets:
+  Demo:
+    type: application
+    platform: iOS
+    deploymentTarget: '26.0'
+    sources:
+    - path: Demo
+      excludes:
+      - Configuration.storekit
+    dependencies:
+    - package: AppFoundation
+      product: AppFoundation
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.demo
+        PRODUCT_NAME: Demo
+        DEVELOPMENT_TEAM: J458WW3452
+        CODE_SIGN_STYLE: Automatic
+        MARKETING_VERSION: '1.0'
+        CURRENT_PROJECT_VERSION: '1'
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+        SWIFT_EMIT_LOC_STRINGS: true
+        TARGETED_DEVICE_FAMILY: 1,2
+    info:
+      path: Generated/Demo-Info.plist
+      properties:
+        CFBundleDisplayName: Demo
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+        - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+        - UIInterfaceOrientationPortrait
+        - UIInterfaceOrientationPortraitUpsideDown
+        - UIInterfaceOrientationLandscapeLeft
+        - UIInterfaceOrientationLandscapeRight
+  DemoTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: '26.0'
+    sources:
+    - DemoTests
+    dependencies:
+    - target: Demo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.demo.tests
+        DEVELOPMENT_TEAM: J458WW3452
+        CODE_SIGN_STYLE: Automatic
+        GENERATE_INFOPLIST_FILE: true
+  DemoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: '26.0'
+    sources:
+    - DemoUITests
+    dependencies:
+    - target: Demo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.demo.uitests
+        DEVELOPMENT_TEAM: J458WW3452
+        CODE_SIGN_STYLE: Automatic
+        GENERATE_INFOPLIST_FILE: true
+schemes:
+  Demo:
+    build:
+      targets:
+        Demo: all
+        DemoTests:
+        - test
+    run:
+      config: Debug
+      storeKitConfiguration: Demo/Configuration.storekit
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets:
+      - Demo
+      targets:
+      - name: DemoTests
+        parallelizable: true
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+    management:
+      shared: true
+  Demo UI Tests:
+    build:
+      targets:
+        Demo:
+        - run
+        - test
+        DemoUITests:
+        - test
+    test:
+      config: Debug
+      targets:
+      - name: DemoUITests
+    management:
+      shared: true

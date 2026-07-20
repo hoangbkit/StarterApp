@@ -1,8 +1,9 @@
 import SwiftUI
 
 @main
+@MainActor
 struct DemoApp: App {
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @StateObject private var store = StoreManager()
 
     var body: some Scene {
