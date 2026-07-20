@@ -1,11 +1,11 @@
-PROJECT := Demo.xcodeproj
-SCHEME := Demo
-UI_TEST_SCHEME := Demo UI Tests
+PROJECT := StarterApp.xcodeproj
+SCHEME := StarterApp
+UI_TEST_SCHEME := StarterApp UI Tests
 CONFIGURATION ?= Debug
 BILLING ?= live
-BUNDLE_ID := com.hoangbkit.demo
+BUNDLE_ID := com.hoangbkit.starterapp
 BUILD_DIR := build
-APP_PATH := $(BUILD_DIR)/Build/Products/$(CONFIGURATION)-iphoneos/Demo.app
+APP_PATH := $(BUILD_DIR)/Build/Products/$(CONFIGURATION)-iphoneos/StarterApp.app
 
 # Allow `make deploy se2` as shorthand for `make deploy DEVICE_NAME=se2`.
 DEVICE_TARGETS := deploy build install launch
@@ -37,7 +37,7 @@ endif
 
 help:
 	@echo "Targets:"
-	@echo "  make generate                                  Generate Demo.xcodeproj with XcodeGen"
+	@echo "  make generate                                  Generate StarterApp.xcodeproj with XcodeGen"
 	@echo "  make open                                      Generate and open the project"
 	@echo "  make build                                     Build for a generic iOS Simulator"
 	@echo "  make test                                      Run unit tests on an available iPhone Simulator"
@@ -98,7 +98,7 @@ test: generate
 		-scheme "$(SCHEME)" \
 		-destination "platform=iOS Simulator,id=$$SIMULATOR_ID" \
 		-derivedDataPath "$(BUILD_DIR)" \
-		-only-testing:DemoTests \
+		-only-testing:StarterAppTests \
 		CODE_SIGNING_ALLOWED=NO
 
 ui-test: generate

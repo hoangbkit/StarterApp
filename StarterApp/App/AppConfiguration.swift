@@ -4,11 +4,11 @@ import SwiftUI
 
 @MainActor
 enum AppConfiguration {
-    static let displayName = "Demo"
+    static let displayName = "StarterApp"
     static let appStoreID: String? = nil
 
-    static let monthlyProductID = "com.hoangbkit.Demo.pro.monthly"
-    static let yearlyProductID = "com.hoangbkit.Demo.pro.yearly"
+    static let monthlyProductID = "com.hoangbkit.starterapp.pro.monthly"
+    static let yearlyProductID = "com.hoangbkit.starterapp.pro.yearly"
 
     static let supportURL = URL(string: "https://example.com/support")!
     static let privacyURL = URL(string: "https://example.com/privacy")!
@@ -25,16 +25,16 @@ enum AppConfiguration {
     static let simulatedProducts: [StoreProduct] = [
         StoreProduct(
             id: monthlyProductID,
-            displayName: "Demo Pro Monthly",
-            description: "Monthly access to every Demo Pro feature.",
+            displayName: "StarterApp Pro Monthly",
+            description: "Monthly access to every StarterApp Pro feature.",
             displayPrice: "$4.99",
             price: 4.99,
             subscriptionPeriod: .init(value: 1, unit: .month)
         ),
         StoreProduct(
             id: yearlyProductID,
-            displayName: "Demo Pro Yearly",
-            description: "Annual access to every Demo Pro feature.",
+            displayName: "StarterApp Pro Yearly",
+            description: "Annual access to every StarterApp Pro feature.",
             displayPrice: "$39.99",
             price: 39.99,
             subscriptionPeriod: .init(value: 1, unit: .year)
@@ -48,14 +48,14 @@ enum AppConfiguration {
     }
 
     static let paywallConfiguration = FoundationPaywallConfiguration(
-        title: "Get more Demo",
+        title: "Get more StarterApp",
         subtitle: "Choose the plan that's right for you",
         features: [
             FoundationPaywallFeature(
                 id: "all-features",
                 systemImage: "sparkles",
                 title: "All Pro features",
-                message: "Unlock every premium feature in Demo."
+                message: "Unlock every premium feature in StarterApp."
             ),
             FoundationPaywallFeature(
                 id: "updates",
@@ -83,7 +83,7 @@ enum AppConfiguration {
             service: PurchaseServiceFactory.make(
                 mode: purchaseServiceMode,
                 simulatedProducts: simulatedProducts,
-                simulatedPersistenceKey: "com.hoangbkit.demo.simulated-purchases"
+                simulatedPersistenceKey: "com.hoangbkit.starterapp.simulated-purchases"
             )
         )
     }

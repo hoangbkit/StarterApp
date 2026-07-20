@@ -1,4 +1,4 @@
-name: Demo
+name: StarterApp
 options:
   minimumXcodeGenVersion: 2.45.4
   xcodeVersion: '26.0'
@@ -24,14 +24,14 @@ packages:
     branch: master
 fileGroups:
 - README.md
-- Demo/Configuration.storekit
+- StarterApp/Configuration.storekit
 targets:
-  Demo:
+  StarterApp:
     type: application
     platform: iOS
     deploymentTarget: '26.0'
     sources:
-    - path: Demo
+    - path: StarterApp
       excludes:
       - Configuration.storekit
     dependencies:
@@ -39,8 +39,8 @@ targets:
       product: AppFoundation
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.demo
-        PRODUCT_NAME: Demo
+        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.starterapp
+        PRODUCT_NAME: StarterApp
         DEVELOPMENT_TEAM: J458WW3452
         CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: '1.0'
@@ -51,9 +51,9 @@ targets:
         SWIFT_EMIT_LOC_STRINGS: true
         TARGETED_DEVICE_FAMILY: 1,2
     info:
-      path: Generated/Demo-Info.plist
+      path: Generated/StarterApp-Info.plist
       properties:
-        CFBundleDisplayName: Demo
+        CFBundleDisplayName: StarterApp
         ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
@@ -63,53 +63,53 @@ targets:
         - UIInterfaceOrientationPortraitUpsideDown
         - UIInterfaceOrientationLandscapeLeft
         - UIInterfaceOrientationLandscapeRight
-  DemoTests:
+  StarterAppTests:
     type: bundle.unit-test
     platform: iOS
     deploymentTarget: '26.0'
     sources:
-    - DemoTests
+    - StarterAppTests
     dependencies:
-    - target: Demo
+    - target: StarterApp
     - package: AppFoundation
       product: AppFoundation
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.demo.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.starterapp.tests
         DEVELOPMENT_TEAM: J458WW3452
         CODE_SIGN_STYLE: Automatic
         GENERATE_INFOPLIST_FILE: true
-  DemoUITests:
+  StarterAppUITests:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: '26.0'
     sources:
-    - DemoUITests
+    - StarterAppUITests
     dependencies:
-    - target: Demo
+    - target: StarterApp
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.demo.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: com.hoangbkit.starterapp.uitests
         DEVELOPMENT_TEAM: J458WW3452
         CODE_SIGN_STYLE: Automatic
         GENERATE_INFOPLIST_FILE: true
 schemes:
-  Demo:
+  StarterApp:
     build:
       targets:
-        Demo: all
-        DemoTests:
+        StarterApp: all
+        StarterAppTests:
         - test
     run:
       config: Debug
-      storeKitConfiguration: Demo/Configuration.storekit
+      storeKitConfiguration: StarterApp/Configuration.storekit
     test:
       config: Debug
       gatherCoverageData: true
       coverageTargets:
-      - Demo
+      - StarterApp
       targets:
-      - name: DemoTests
+      - name: StarterAppTests
         parallelizable: true
     profile:
       config: Release
@@ -120,11 +120,11 @@ schemes:
     management:
       shared: true
       orderHint: 0
-  Demo Simulated:
+  StarterApp Simulated:
     build:
       targets:
-        Demo: all
-        DemoTests:
+        StarterApp: all
+        StarterAppTests:
         - test
     run:
       config: Debug
@@ -134,9 +134,9 @@ schemes:
       config: Debug
       gatherCoverageData: true
       coverageTargets:
-      - Demo
+      - StarterApp
       targets:
-      - name: DemoTests
+      - name: StarterAppTests
         parallelizable: true
       environmentVariables:
         APPFOUNDATION_PURCHASE_MODE: simulated
@@ -149,18 +149,18 @@ schemes:
     management:
       shared: true
       orderHint: 1
-  Demo UI Tests:
+  StarterApp UI Tests:
     build:
       targets:
-        Demo:
+        StarterApp:
         - run
         - test
-        DemoUITests:
+        StarterAppUITests:
         - test
     test:
       config: Debug
       targets:
-      - name: DemoUITests
+      - name: StarterAppUITests
     management:
       shared: true
       orderHint: 2

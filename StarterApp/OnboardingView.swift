@@ -16,7 +16,7 @@ private let onboardingPages: [OnboardingPage] = [
     OnboardingPage(
         systemImage: "sparkles",
         title: "Do more, faster",
-        subtitle: "This demo shows a simple, reusable onboarding flow you can drop into any app."
+        subtitle: "This starter app shows a simple, reusable onboarding flow you can adapt for any app."
     ),
     OnboardingPage(
         systemImage: "checkmark.seal.fill",

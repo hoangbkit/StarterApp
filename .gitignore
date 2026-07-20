@@ -2,7 +2,7 @@
 build/
 DerivedData/
 Generated/
-Demo.xcodeproj/
+StarterApp.xcodeproj/
 *.xcuserstate
 xcuserdata/
 *.xcworkspace/xcuserdata/

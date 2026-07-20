@@ -3,7 +3,7 @@ import SwiftUI
 
 @main
 @MainActor
-struct DemoApp: App {
+struct StarterAppApp: App {
     @State private var purchases = AppConfiguration.makePurchaseController()
 
     var body: some Scene {

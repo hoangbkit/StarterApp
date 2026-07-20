@@ -1,14 +1,14 @@
 import AppFoundation
 import Foundation
 import XCTest
-@testable import Demo
+@testable import StarterApp
 
 @MainActor
-final class DemoTests: XCTestCase {
+final class StarterAppTests: XCTestCase {
     func testStarterConfigurationUsesExpectedIdentity() {
-        XCTAssertEqual(AppConfiguration.displayName, "Demo")
-        XCTAssertEqual(AppConfiguration.monthlyProductID, "com.hoangbkit.Demo.pro.monthly")
-        XCTAssertEqual(AppConfiguration.yearlyProductID, "com.hoangbkit.Demo.pro.yearly")
+        XCTAssertEqual(AppConfiguration.displayName, "StarterApp")
+        XCTAssertEqual(AppConfiguration.monthlyProductID, "com.hoangbkit.starterapp.pro.monthly")
+        XCTAssertEqual(AppConfiguration.yearlyProductID, "com.hoangbkit.starterapp.pro.yearly")
     }
 
     func testStarterURLsAreHTTPS() {
@@ -49,7 +49,7 @@ final class DemoTests: XCTestCase {
     }
 
     func testRouterStartsWithOnboardingAndPersistsCompletion() {
-        let suiteName = "DemoTests.\(UUID().uuidString)"
+        let suiteName = "StarterAppTests.\(UUID().uuidString)"
         guard let defaults = UserDefaults(suiteName: suiteName) else {
             XCTFail("Could not create isolated UserDefaults.")
             return
@@ -73,7 +73,7 @@ final class DemoTests: XCTestCase {
     }
 
     func testShowingOnboardingDoesNotForgetCompletion() {
-        let suiteName = "DemoTests.\(UUID().uuidString)"
+        let suiteName = "StarterAppTests.\(UUID().uuidString)"
         guard let defaults = UserDefaults(suiteName: suiteName) else {
             XCTFail("Could not create isolated UserDefaults.")
             return
