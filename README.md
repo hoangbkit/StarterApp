@@ -40,3 +40,7 @@ make deploy DEVICE_ID=<identifier> TEAM_ID=<team id>
 Run `make help` for all available targets.
 
 CI (GitHub Actions) builds automatically on push to `master` — see `.github/workflows/ios.yml`.
+
+## Repository test
+
+This line was added to verify that the ChatGPT GitHub integration can commit changes successfully.
