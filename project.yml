@@ -24,7 +24,6 @@ packages:
     branch: master
 fileGroups:
 - README.md
-- PLAN.md
 - Demo/Configuration.storekit
 targets:
   Demo:

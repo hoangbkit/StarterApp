@@ -1,21 +1,94 @@
 # Demo
 
-A reusable, production-oriented iOS starter app for Hoang's projects.
+A lightweight iOS starter app for quickly beginning a new Hoang project.
 
-`Demo` is the app repository to clone and rename. Shared infrastructure belongs in [`hoangbkit/AppFoundation`](https://github.com/hoangbkit/AppFoundation).
+`Demo` is meant to be cloned, renamed, and customized. It provides the shared project foundation and purchase setup, while every real app remains free to design its own features, onboarding, settings, data model, and navigation.
 
-## Baseline
+## What Demo includes
+
+### Project foundation
 
 - iOS 26+
 - Swift 6 with strict concurrency
 - SwiftUI and Observation
 - XcodeGen 2.45.4+
 - App, unit-test, and UI-test targets
-- AppFoundation-backed StoreKit 2 purchases
-- Live, local StoreKit, and Debug simulation modes
-- Local StoreKit configuration
-- Privacy manifest and string-catalog structure
-- Simulator, physical-device, and CI workflows
+- Generated Xcode project from `project.yml`
+- GitHub Actions build and unit-test validation
+- Privacy manifest
+- String catalog structure
+- App icon and asset catalog placeholders
+
+### App structure
+
+The app entry only assembles dependencies. Root navigation is separated into small files:
+
+```text
+Demo/App/
+├── AppConfiguration.swift
+├── AppLaunchState.swift
+├── AppRootView.swift
+├── AppRouter.swift
+└── DemoApp.swift
+```
+
+The launch flow supports:
+
+```text
+Preparing
+  → Onboarding
+  → Main app
+  → Recoverable launch error
+```
+
+### App-owned onboarding
+
+Demo includes a simple three-page SwiftUI onboarding flow with:
+
+- swipeable pages
+- SF Symbol illustrations
+- Next, Skip, and Get Started actions
+- persisted completion state
+- an option to show onboarding again from the main screen
+
+Onboarding intentionally stays inside Demo and each cloned app. It is not provided by AppFoundation because real apps often need custom layouts, permissions, profile setup, initial data entry, animations, and branding.
+
+### Purchases through AppFoundation
+
+Demo imports `hoangbkit/AppFoundation` for shared purchase infrastructure.
+
+AppFoundation handles:
+
+- StoreKit product loading
+- transaction verification and observation
+- entitlement evaluation
+- foreground entitlement refresh
+- restore purchases
+- pending and failure states
+- Debug purchase simulation
+- reusable paywall mechanics
+
+Demo owns:
+
+- product identifiers
+- simulated product values
+- paywall text and legal URLs
+- when the paywall appears
+- which app features require Pro
+
+Demo contains no app-local StoreKit manager.
+
+### Purchase testing modes
+
+The **Demo** scheme uses `Demo/Configuration.storekit` for local StoreKit testing.
+
+The **Demo Simulated** scheme sets:
+
+```text
+APPFOUNDATION_PURCHASE_MODE=simulated
+```
+
+Simulation is available only in Debug. AppFoundation always resolves Release builds to live StoreKit.
 
 ## Requirements
 
@@ -31,7 +104,7 @@ brew install xcodegen
 
 ## Generate and open
 
-The checked-in `project.yml` is the source of truth. `Demo.xcodeproj` is generated and intentionally ignored.
+`project.yml` is the source of truth. `Demo.xcodeproj` is generated and ignored by Git.
 
 ```bash
 make generate
@@ -46,91 +119,53 @@ make test
 make ui-test
 ```
 
-GitHub Actions regenerates the project, builds the app, and runs unit tests on every push and pull request targeting `master`.
+## Deploy to an iPhone
 
-## Deploy to a physical iPhone
+Configure your Apple ID once in Xcode > Settings > Accounts.
 
-Your Apple ID must be configured once in Xcode > Settings > Accounts.
-
-Use live StoreKit:
+Live StoreKit:
 
 ```bash
 make devices
 make deploy se2
 ```
 
-Use AppFoundation's in-process simulator in a Debug build:
+Debug simulated purchases:
 
 ```bash
 make deploy se2 BILLING=simulated
 ```
 
-You can also use an identifier directly:
+Use a device identifier directly:
 
 ```bash
-make deploy DEVICE_ID=<identifier> BILLING=simulated
+make deploy DEVICE_ID=<identifier>
 ```
 
-Override the configured signing team when needed:
+Override the signing team:
 
 ```bash
 make deploy se2 TEAM_ID=<team-id>
 ```
 
-`BILLING` accepts `live` or `simulated`. AppFoundation forces Release builds to use live StoreKit even if simulation is requested.
+`BILLING` accepts `live` or `simulated`.
 
-This remains compatible with the existing `mycli deploy` workflow because project generation happens automatically before a build.
+## App configuration
 
-## Purchase modes
-
-### Xcode: local StoreKit
-
-Select the **Demo** scheme. It uses `Demo/Configuration.storekit` while AppFoundation runs its live StoreKit service.
-
-### Xcode: in-process simulation
-
-Select the **Demo Simulated** scheme. It sets:
-
-```text
-APPFOUNDATION_PURCHASE_MODE=simulated
-```
-
-This mode works only in Debug and persists simulated entitlement state locally.
-
-### CLI and device deployment
-
-A normal deployment uses live StoreKit:
-
-```bash
-make deploy se2
-```
-
-An explicit simulated deployment passes the purchase mode to the launched app:
-
-```bash
-make deploy se2 BILLING=simulated
-```
-
-### Release safety
-
-`PurchaseServiceFactory` always resolves to live StoreKit in Release builds. Simulated purchase code is not used as the release entitlement source.
-
-## App-specific configuration
-
-Runtime identity and purchase values are collected in `Demo/App/AppConfiguration.swift`:
+Runtime values are collected in `Demo/App/AppConfiguration.swift`:
 
 - display name
 - App Store ID
 - monthly and yearly product IDs
 - support, privacy, and terms URLs
-- purchase product ordering
+- product ordering
 - simulated products
 - paywall copy
 - purchase service construction
 
-Build identity and signing values live in `project.yml`:
+Build and signing values live in `project.yml`:
 
-- target and product name
+- target and product names
 - bundle identifiers
 - deployment target
 - Team ID
@@ -138,54 +173,19 @@ Build identity and signing values live in `project.yml`:
 - package dependency
 - shared schemes
 
-## App launch flow
+## Starting a new app
 
-`DemoApp` only assembles dependencies. `AppRootView` and `AppRouter` own application routing:
+1. Clone or duplicate this repository.
+2. Rename the app and target.
+3. Update bundle identifiers and signing values in `project.yml`.
+4. Replace values in `AppConfiguration.swift`.
+5. Replace the app icon and accent assets.
+6. Customize or replace `OnboardingView.swift`.
+7. Replace `ContentView.swift` with the real app experience.
+8. Update settings, privacy manifest, strings, StoreKit products, and legal URLs.
+9. Run `make generate`, `make build`, and `make test`.
 
-```text
-Preparing
-  → Onboarding
-  → Main app
-  → Recoverable launch error
-```
-
-Onboarding completion is persisted in `UserDefaults`. Re-showing onboarding from the main screen does not erase the completion flag.
-
-## Purchase ownership
-
-Demo owns:
-
-- product identifiers
-- simulated catalog values
-- paywall text and legal URLs
-- when the paywall appears
-- which app features require Pro
-
-AppFoundation owns:
-
-- StoreKit product loading
-- transaction verification
-- transaction observation
-- entitlement evaluation
-- foreground refresh
-- restore behavior
-- pending and failure states
-- Debug simulation
-- paywall mechanics
-
-Demo intentionally contains no app-local StoreKit manager.
-
-## Production resources
-
-- Replace `Demo/AppIcon.icon` with the real app icon.
-- Update `Demo/PrivacyInfo.xcprivacy` whenever the app or a linked SDK uses additional required-reason APIs or collects data.
-- Add user-facing strings to `Demo/Localizable.xcstrings`.
-- Replace all `example.com` URLs before release.
-- Replace Demo product identifiers with App Store Connect product identifiers.
-
-The starter declares UserDefaults access because onboarding completion and Debug purchase simulation persist local state.
-
-## Current structure
+## Current repository structure
 
 ```text
 Demo/
@@ -208,11 +208,14 @@ DemoTests/
 DemoUITests/
 project.yml
 Makefile
-PLAN.md
+README.md
 ```
 
-## Phase status
+## Before release
 
-- Phase 1: modern XcodeGen project baseline — complete
-- Phase 2: app shell and AppFoundation purchase adoption — complete
-- Phase 3: onboarding, SwiftData, and disposable sample feature — next
+- Replace all `example.com` URLs.
+- Replace Demo product identifiers with App Store Connect product identifiers.
+- Replace the placeholder app icon.
+- Review the privacy manifest for the real app and linked SDKs.
+- Move real user-facing strings into the string catalog.
+- Build and test both Debug and Release configurations.
