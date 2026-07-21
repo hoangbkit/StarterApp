@@ -3,8 +3,9 @@ import StoreKit
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(PurchaseController.self) private var purchases
+    @Environment(PurchaseManager.self) private var purchases
     @Environment(ThemeManager.self) private var themes
+    @Environment(\.appFoundationTheme) private var theme
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
 
@@ -33,6 +34,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Appearance")
                 }
+                .listRowBackground(theme.surfaceColor)
 
                 Section {
                     Button {
@@ -43,6 +45,7 @@ struct SettingsView: View {
                             Spacer()
                             if purchases.isBusy {
                                 ProgressView()
+                                    .tint(theme.accentColor)
                             }
                         }
                     }
@@ -56,6 +59,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Purchases")
                 }
+                .listRowBackground(theme.surfaceColor)
 
                 #if DEBUG
                 Section {
@@ -77,8 +81,9 @@ struct SettingsView: View {
                     if isChangingPurchaseMode {
                         HStack {
                             ProgressView()
+                                .tint(theme.accentColor)
                             Text("Changing purchase mode…")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(theme.secondaryForegroundColor)
                         }
                     }
 
@@ -96,6 +101,7 @@ struct SettingsView: View {
                 } footer: {
                     Text("Uses AppFoundation's configurable in-process purchase simulator. Release builds always use live StoreKit.")
                 }
+                .listRowBackground(theme.surfaceColor)
                 #endif
 
                 Section {
@@ -113,6 +119,7 @@ struct SettingsView: View {
                         Label("Share App", systemImage: "square.and.arrow.up")
                     }
                 }
+                .listRowBackground(theme.surfaceColor)
 
                 Section {
                     Link(destination: AppConfiguration.privacyURL) {
@@ -123,29 +130,38 @@ struct SettingsView: View {
                         Label("Terms of Service", systemImage: "doc.text")
                     }
                 }
+                .listRowBackground(theme.surfaceColor)
 
                 Section {
                     HStack {
                         Label("Version", systemImage: "info.circle")
                         Spacer()
                         Text(appVersion)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(theme.secondaryForegroundColor)
                     }
                 }
+                .listRowBackground(theme.surfaceColor)
             }
+            .scrollContentBackground(.hidden)
+            .background(StarterThemeBackground(theme: theme))
+            .listSectionSpacing(18)
+            .listSectionSeparatorTint(theme.borderColor)
+            .foregroundStyle(theme.primaryForegroundColor)
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationSubtitle("Make StarterApp feel like yours")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
                         dismiss()
                     }
+                    .fontWeight(.semibold)
                 }
             }
             .offerCodeRedemption(isPresented: $isShowingOfferCodeSheet)
             .sheet(isPresented: $isShowingPaywall) {
-                ClaudePaywallView(
-                    purchases: purchases,
+                PaywallView(
+                    purchaseManager: purchases,
                     configuration: AppConfiguration.paywallConfiguration
                 )
             }
@@ -161,6 +177,8 @@ struct SettingsView: View {
                 Text(restoreMessage ?? "")
             }
         }
+        .tint(theme.accentColor)
+        .animation(.smooth, value: theme.id)
     }
 
     private var appVersion: String {
@@ -192,6 +210,6 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environment(AppConfiguration.makePreviewPurchaseController())
+        .environment(AppConfiguration.makePreviewPurchaseManager())
         .environment(ThemeManager(catalog: .foundationDefaults))
 }
