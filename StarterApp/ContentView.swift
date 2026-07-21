@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(PurchaseController.self) private var purchases
+    @Environment(\.appFoundationTheme) private var theme
 
     let onShowOnboarding: () -> Void
 
@@ -20,7 +21,7 @@ struct ContentView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 72, height: 72)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(theme.accentColor)
 
                 Text("You're all set!")
                     .font(.title2)
@@ -60,6 +61,7 @@ struct ContentView: View {
                 }
             }
         }
+        .animation(.smooth, value: theme.id)
         .sheet(isPresented: $isShowingPaywall) {
             ClaudePaywallView(
                 purchases: purchases,
@@ -83,13 +85,12 @@ struct ContentView: View {
                 isShowingPaywall = true
             }
             .buttonStyle(.borderedProminent)
-            .tint(.black)
             .padding(.top, 8)
 
         case .active:
             Label("Pro unlocked", systemImage: "star.fill")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.orange)
+                .foregroundStyle(theme.accentColor)
                 .padding(.top, 8)
         }
     }
