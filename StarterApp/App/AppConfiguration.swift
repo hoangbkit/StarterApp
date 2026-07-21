@@ -89,15 +89,11 @@ enum AppConfiguration {
         theme: FoundationTheme(primary: .black, secondary: .black)
     )
 
-    static func makePurchaseController(simulated: Bool? = nil) -> PurchaseController {
-        let mode = simulated.map {
-            PurchaseServiceFactory.effectiveMode(for: $0 ? .simulated : .live)
-        } ?? purchaseServiceMode
-
-        return PurchaseController(
+    static func makePurchaseController() -> PurchaseController {
+        PurchaseController(
             configuration: purchaseConfiguration,
             service: PurchaseServiceFactory.make(
-                mode: mode,
+                mode: purchaseServiceMode,
                 simulatedProducts: simulatedProducts,
                 simulatedPersistenceKey: "com.hoangbkit.starterapp.simulated-purchases"
             )
