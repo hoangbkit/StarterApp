@@ -44,19 +44,10 @@ enum AppConfiguration {
 
     static var isSimulatedPurchaseModeEnabled: Bool {
         #if DEBUG
-        if UserDefaults.standard.object(forKey: simulatedPurchaseModeDefaultsKey) != nil {
-            return UserDefaults.standard.bool(forKey: simulatedPurchaseModeDefaultsKey)
-        }
-        return PurchaseServiceMode.fromEnvironment(fallback: .live) == .simulated
+        UserDefaults.standard.bool(forKey: simulatedPurchaseModeDefaultsKey)
         #else
-        return false
+        false
         #endif
-    }
-
-    static var purchaseServiceMode: PurchaseServiceMode {
-        PurchaseServiceFactory.effectiveMode(
-            for: isSimulatedPurchaseModeEnabled ? .simulated : .live
-        )
     }
 
     static let paywallConfiguration = FoundationPaywallConfiguration(
@@ -92,21 +83,18 @@ enum AppConfiguration {
     static func makePurchaseController() -> PurchaseController {
         PurchaseController(
             configuration: purchaseConfiguration,
-            service: PurchaseServiceFactory.make(
-                mode: purchaseServiceMode,
-                simulatedProducts: simulatedProducts,
-                simulatedPersistenceKey: "com.hoangbkit.starterapp.simulated-purchases"
-            )
+            simulated: isSimulatedPurchaseModeEnabled,
+            simulatedProducts: simulatedProducts,
+            simulatedPersistenceKey: "com.hoangbkit.starterapp.simulated-purchases"
         )
     }
 
     static func makePreviewPurchaseController() -> PurchaseController {
         PurchaseController(
             configuration: purchaseConfiguration,
-            service: PurchaseServiceFactory.make(
-                mode: .simulated,
-                simulatedProducts: simulatedProducts
-            )
+            simulated: true,
+            simulatedProducts: simulatedProducts,
+            simulatedOperationDelay: .milliseconds(0)
         )
     }
 }
