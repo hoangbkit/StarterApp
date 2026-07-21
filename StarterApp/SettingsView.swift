@@ -14,7 +14,8 @@ struct SettingsView: View {
 
     #if DEBUG
     @AppStorage(AppConfiguration.simulatedPurchaseModeDefaultsKey)
-    private var simulatedPurchasesEnabled = AppConfiguration.isSimulatedPurchaseModeEnabled
+    private var simulatedPurchasesEnabled = false
+    @State private var isChangingPurchaseMode = false
     #endif
 
     var body: some View {
@@ -61,16 +62,24 @@ struct SettingsView: View {
                     Toggle(isOn: $simulatedPurchasesEnabled) {
                         Label("Simulated Purchases", systemImage: "hammer.fill")
                     }
+                    .disabled(purchases.isBusy || isChangingPurchaseMode)
+                    .onChange(of: simulatedPurchasesEnabled) { _, enabled in
+                        Task {
+                            await changePurchaseMode(simulated: enabled)
+                        }
+                    }
 
                     LabeledContent(
                         "Current Mode",
                         value: purchases.isUsingSimulatedPurchases ? "Simulated" : "Live StoreKit"
                     )
 
-                    if simulatedPurchaseModeChangePending {
-                        Label("Restart StarterApp to apply this change.", systemImage: "arrow.clockwise.circle")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                    if isChangingPurchaseMode {
+                        HStack {
+                            ProgressView()
+                            Text("Changing purchase mode…")
+                                .foregroundStyle(.secondary)
+                        }
                     }
 
                     if purchases.isUsingSimulatedPurchases {
@@ -80,12 +89,12 @@ struct SettingsView: View {
                                 restoreMessage = "Simulated purchases were reset."
                             }
                         }
-                        .disabled(purchases.isBusy)
+                        .disabled(purchases.isBusy || isChangingPurchaseMode)
                     }
                 } header: {
                     Text("Developer")
                 } footer: {
-                    Text("AppFoundation selects the purchase service when the app launches. The toggle is stored for the next launch; Release builds always use live StoreKit.")
+                    Text("Uses AppFoundation's configurable in-process purchase simulator. Release builds always use live StoreKit.")
                 }
                 #endif
 
@@ -154,12 +163,6 @@ struct SettingsView: View {
         }
     }
 
-    #if DEBUG
-    private var simulatedPurchaseModeChangePending: Bool {
-        simulatedPurchasesEnabled != purchases.isUsingSimulatedPurchases
-    }
-    #endif
-
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
@@ -177,6 +180,14 @@ struct SettingsView: View {
             purchases.clearActivity()
         }
     }
+
+    #if DEBUG
+    private func changePurchaseMode(simulated: Bool) async {
+        isChangingPurchaseMode = true
+        await purchases.setSimulatedPurchasesEnabled(simulated)
+        isChangingPurchaseMode = false
+    }
+    #endif
 }
 
 #Preview {
