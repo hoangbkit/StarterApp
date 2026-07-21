@@ -1,6 +1,5 @@
 import AppFoundation
 import Foundation
-import SwiftUI
 
 @MainActor
 enum AppConfiguration {
@@ -50,38 +49,39 @@ enum AppConfiguration {
         #endif
     }
 
-    static let paywallConfiguration = FoundationPaywallConfiguration(
+    static let paywallConfiguration = PaywallConfiguration(
         title: "Get more StarterApp",
         subtitle: "Choose the plan that's right for you",
+        planTitle: "StarterApp Pro",
+        planSubtitle: "Everything you need, without limits",
         features: [
-            FoundationPaywallFeature(
+            PaywallFeature(
                 id: "all-features",
                 systemImage: "sparkles",
                 title: "All Pro features",
                 message: "Unlock every premium feature in StarterApp."
             ),
-            FoundationPaywallFeature(
+            PaywallFeature(
                 id: "updates",
                 systemImage: "arrow.down.circle",
                 title: "Future updates",
                 message: "Get every new Pro feature as it ships."
             ),
-            FoundationPaywallFeature(
+            PaywallFeature(
                 id: "limits",
                 systemImage: "infinity",
                 title: "No limits",
                 message: "Remove free-plan usage limits."
             ),
         ],
+        preferredProductID: yearlyProductID,
         purchaseButtonTitle: "Get Pro plan",
-        highlightedProductID: yearlyProductID,
         privacyURL: privacyURL,
-        termsURL: termsURL,
-        theme: FoundationTheme(primary: .black, secondary: .black)
+        termsURL: termsURL
     )
 
-    static func makePurchaseController() -> PurchaseController {
-        PurchaseController(
+    static func makePurchaseManager() -> PurchaseManager {
+        PurchaseManager(
             configuration: purchaseConfiguration,
             simulated: isSimulatedPurchaseModeEnabled,
             simulatedProducts: simulatedProducts,
@@ -89,8 +89,8 @@ enum AppConfiguration {
         )
     }
 
-    static func makePreviewPurchaseController() -> PurchaseController {
-        PurchaseController(
+    static func makePreviewPurchaseManager() -> PurchaseManager {
+        PurchaseManager(
             configuration: purchaseConfiguration,
             simulated: true,
             simulatedProducts: simulatedProducts,
