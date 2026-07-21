@@ -9,6 +9,7 @@ enum AppConfiguration {
 
     static let monthlyProductID = "com.hoangbkit.starterapp.pro.monthly"
     static let yearlyProductID = "com.hoangbkit.starterapp.pro.yearly"
+    static let simulatedPurchaseModeDefaultsKey = "com.hoangbkit.starterapp.developer.simulated-purchases-enabled"
 
     static let supportURL = URL(string: "https://example.com/support")!
     static let privacyURL = URL(string: "https://example.com/privacy")!
@@ -41,9 +42,20 @@ enum AppConfiguration {
         ),
     ]
 
+    static var isSimulatedPurchaseModeEnabled: Bool {
+        #if DEBUG
+        if UserDefaults.standard.object(forKey: simulatedPurchaseModeDefaultsKey) != nil {
+            return UserDefaults.standard.bool(forKey: simulatedPurchaseModeDefaultsKey)
+        }
+        return PurchaseServiceMode.fromEnvironment(fallback: .live) == .simulated
+        #else
+        return false
+        #endif
+    }
+
     static var purchaseServiceMode: PurchaseServiceMode {
         PurchaseServiceFactory.effectiveMode(
-            for: PurchaseServiceMode.fromEnvironment(fallback: .live)
+            for: isSimulatedPurchaseModeEnabled ? .simulated : .live
         )
     }
 
@@ -77,11 +89,15 @@ enum AppConfiguration {
         theme: FoundationTheme(primary: .black, secondary: .black)
     )
 
-    static func makePurchaseController() -> PurchaseController {
-        PurchaseController(
+    static func makePurchaseController(simulated: Bool? = nil) -> PurchaseController {
+        let mode = simulated.map {
+            PurchaseServiceFactory.effectiveMode(for: $0 ? .simulated : .live)
+        } ?? purchaseServiceMode
+
+        return PurchaseController(
             configuration: purchaseConfiguration,
             service: PurchaseServiceFactory.make(
-                mode: purchaseServiceMode,
+                mode: mode,
                 simulatedProducts: simulatedProducts,
                 simulatedPersistenceKey: "com.hoangbkit.starterapp.simulated-purchases"
             )
