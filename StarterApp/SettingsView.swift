@@ -4,15 +4,30 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(PurchaseController.self) private var purchases
+    @Environment(ThemeManager.self) private var themes
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
 
     @State private var isShowingOfferCodeSheet = false
+    @State private var isShowingPaywall = false
     @State private var restoreMessage: String?
 
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    ThemePickerView(
+                        manager: themes,
+                        title: nil,
+                        onRequestUpgrade: {
+                            isShowingPaywall = true
+                        }
+                    )
+                    .padding(.vertical, 4)
+                } header: {
+                    Text("Appearance")
+                }
+
                 Section {
                     Button {
                         Task { await restore() }
@@ -99,6 +114,12 @@ struct SettingsView: View {
                 }
             }
             .offerCodeRedemption(isPresented: $isShowingOfferCodeSheet)
+            .sheet(isPresented: $isShowingPaywall) {
+                ClaudePaywallView(
+                    purchases: purchases,
+                    configuration: AppConfiguration.paywallConfiguration
+                )
+            }
             .alert(
                 "Restore Purchases",
                 isPresented: Binding(
@@ -135,4 +156,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(AppConfiguration.makePreviewPurchaseController())
+        .environment(ThemeManager(catalog: .foundationDefaults))
 }
