@@ -38,6 +38,16 @@ final class StarterAppTests: XCTestCase {
         )
     }
 
+    func testPaywallUsesCurrentThemeAwareConfiguration() {
+        XCTAssertEqual(
+            AppConfiguration.paywallConfiguration.preferredProductID,
+            AppConfiguration.yearlyProductID
+        )
+        XCTAssertEqual(AppConfiguration.paywallConfiguration.features.count, 3)
+        XCTAssertNil(AppConfiguration.paywallConfiguration.themeOverride)
+        XCTAssertNil(AppConfiguration.paywallConfiguration.tint)
+    }
+
     func testRequestedSimulationIsSafeForCurrentBuild() {
         let effectiveMode = PurchaseServiceFactory.effectiveMode(for: .simulated)
 
