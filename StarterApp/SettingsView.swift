@@ -12,6 +12,11 @@ struct SettingsView: View {
     @State private var isShowingPaywall = false
     @State private var restoreMessage: String?
 
+    #if DEBUG
+    @AppStorage(AppConfiguration.simulatedPurchaseModeDefaultsKey)
+    private var simulatedPurchasesEnabled = AppConfiguration.isSimulatedPurchaseModeEnabled
+    #endif
+
     var body: some View {
         NavigationStack {
             List {
@@ -52,10 +57,13 @@ struct SettingsView: View {
                 }
 
                 #if DEBUG
-                if purchases.isUsingSimulatedPurchases {
-                    Section {
-                        LabeledContent("Purchase Mode", value: "Simulated")
+                Section {
+                    Toggle(isOn: $simulatedPurchasesEnabled) {
+                        Label("Simulated Purchases", systemImage: "hammer.fill")
+                    }
+                    .disabled(purchases.isBusy)
 
+                    if purchases.isUsingSimulatedPurchases {
                         Button("Reset Simulated Purchases", role: .destructive) {
                             Task {
                                 await purchases.resetSimulatedPurchases()
@@ -63,9 +71,11 @@ struct SettingsView: View {
                             }
                         }
                         .disabled(purchases.isBusy)
-                    } header: {
-                        Text("Debug")
                     }
+                } header: {
+                    Text("Developer")
+                } footer: {
+                    Text("Switches between live StoreKit and AppFoundation's in-process purchase simulator. The change applies immediately.")
                 }
                 #endif
 
