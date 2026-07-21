@@ -1,8 +1,10 @@
+import AppFoundation
 import SwiftUI
 
 private struct OnboardingPage: Identifiable {
     let id = UUID()
     let systemImage: String
+    let eyebrow: String
     let title: String
     let subtitle: String
 }
@@ -10,64 +12,75 @@ private struct OnboardingPage: Identifiable {
 private let onboardingPages: [OnboardingPage] = [
     OnboardingPage(
         systemImage: "hand.wave.fill",
-        title: "Welcome",
-        subtitle: "Glad to have you here. Let's take a quick look around."
+        eyebrow: "Welcome",
+        title: "A polished place to begin",
+        subtitle: "StarterApp includes the shared foundation your next app needs, without locking in its identity."
     ),
     OnboardingPage(
-        systemImage: "sparkles",
-        title: "Do more, faster",
-        subtitle: "This starter app shows a simple, reusable onboarding flow you can adapt for any app."
+        systemImage: "paintpalette.fill",
+        eyebrow: "Theme aware",
+        title: "Every screen follows your style",
+        subtitle: "Backgrounds, surfaces, controls, settings, and paywalls update together when the active theme changes."
     ),
     OnboardingPage(
         systemImage: "checkmark.seal.fill",
-        title: "You're ready",
-        subtitle: "Tap Get Started to jump into the app."
+        eyebrow: "Ready",
+        title: "Make it yours",
+        subtitle: "Replace the sample content with your feature while keeping the production-ready app shell."
     ),
 ]
 
 struct OnboardingView: View {
+    @Environment(\.appFoundationTheme) private var theme
+
     let onComplete: () -> Void
 
     @State private var pageIndex = 0
 
     var body: some View {
-        VStack {
-            TabView(selection: $pageIndex) {
-                ForEach(Array(onboardingPages.enumerated()), id: \.element.id) { index, page in
-                    OnboardingPageView(page: page)
-                        .tag(index)
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
+        ZStack {
+            StarterThemeBackground(theme: theme)
 
-            Button(action: advance) {
-                Text(pageIndex == onboardingPages.count - 1 ? "Get Started" : "Next")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            VStack(spacing: 12) {
+                HStack {
+                    Spacer()
+                    Button("Skip", action: onComplete)
+                        .buttonStyle(StarterSecondaryButtonStyle(theme: theme))
+                        .opacity(pageIndex < onboardingPages.count - 1 ? 1 : 0)
+                        .disabled(pageIndex >= onboardingPages.count - 1)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+                TabView(selection: $pageIndex) {
+                    ForEach(Array(onboardingPages.enumerated()), id: \.element.id) { index, page in
+                        OnboardingPageView(page: page, theme: theme)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .always))
+                .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+
+                Button(action: advance) {
+                    HStack(spacing: 9) {
+                        Text(pageIndex == onboardingPages.count - 1 ? "Get Started" : "Continue")
+                        Image(systemName: pageIndex == onboardingPages.count - 1 ? "checkmark" : "arrow.right")
+                    }
+                }
+                .buttonStyle(StarterPrimaryButtonStyle(theme: theme))
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
         }
-        .safeAreaInset(edge: .top) {
-            HStack {
-                Spacer()
-                Button("Skip", action: onComplete)
-                    .padding(.trailing, 20)
-                    .padding(.top, 12)
-                    .opacity(pageIndex < onboardingPages.count - 1 ? 1 : 0)
-                    .disabled(pageIndex >= onboardingPages.count - 1)
-            }
-        }
+        .foregroundStyle(theme.primaryForegroundColor)
+        .animation(.smooth, value: theme.id)
     }
 
     private func advance() {
         if pageIndex < onboardingPages.count - 1 {
-            withAnimation {
+            withAnimation(.snappy) {
                 pageIndex += 1
             }
         } else {
@@ -78,31 +91,52 @@ struct OnboardingView: View {
 
 private struct OnboardingPageView: View {
     let page: OnboardingPage
+    let theme: AppTheme
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
+        StarterThemeCard(
+            theme: theme,
+            emphasis: .prominent,
+            padding: 26,
+            cornerRadius: 34
+        ) {
+            VStack(spacing: 24) {
+                Spacer(minLength: 8)
 
-            Image(systemName: page.systemImage)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 96, height: 96)
-                .foregroundStyle(Color.accentColor)
+                ZStack {
+                    Circle()
+                        .fill(theme.gradient)
+                        .frame(width: 124, height: 124)
+                        .shadow(color: theme.accentColor.opacity(0.28), radius: 24, y: 12)
 
-            Text(page.title)
-                .font(.title)
-                .fontWeight(.bold)
+                    Image(systemName: page.systemImage)
+                        .font(.system(size: 50, weight: .bold))
+                        .foregroundStyle(theme.primaryForegroundColor)
+                }
 
-            Text(page.subtitle)
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+                VStack(spacing: 11) {
+                    StarterEyebrow(
+                        title: page.eyebrow,
+                        systemImage: "sparkles",
+                        theme: theme
+                    )
 
-            Spacer()
-            Spacer()
+                    Text(page.title)
+                        .font(.system(.title, design: .rounded, weight: .black))
+                        .multilineTextAlignment(.center)
+
+                    Text(page.subtitle)
+                        .font(.body)
+                        .foregroundStyle(theme.secondaryForegroundColor)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                }
+
+                Spacer(minLength: 8)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .foregroundStyle(theme.primaryForegroundColor)
         }
-        .padding()
     }
 }
 
