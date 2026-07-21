@@ -21,7 +21,7 @@ settings:
 packages:
   AppFoundation:
     url: https://github.com/hoangbkit/AppFoundation.git
-    revision: 1b30cdefe8cc9dd1a84f445e43000453a2e628da
+    revision: b282980df6c81c8510195fb546299c0296aa8474
 fileGroups:
 - README.md
 - StarterApp/Configuration.storekit
