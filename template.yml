@@ -67,6 +67,7 @@ rename:
     - StarterApp.xcodeproj
 
 configurationSurfaces:
+  - README.md
   - project.yml
   - Makefile
   - StarterApp/App/AppConfiguration.swift
@@ -84,6 +85,7 @@ lifecycle:
 
 validation:
   requiredFiles:
+    - README.md
     - project.yml
     - Makefile
     - StarterApp/App/StarterAppApp.swift
@@ -95,7 +97,9 @@ validation:
     - StarterAppUITests/StarterAppUITests.swift
     - .github/workflows/ios.yml
     - ci_scripts/ci_post_clone.sh
+    - scripts/validate-bootstrap.sh
   identitySurfaces:
+    - README.md
     - project.yml
     - Makefile
     - StarterApp
