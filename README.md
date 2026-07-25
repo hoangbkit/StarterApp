@@ -32,10 +32,12 @@ Widgets, SwiftData, app groups, alternate icons, and document types are delibera
 - renameable directories, files, targets, schemes, and bundle IDs
 - included and optional features
 - configuration surfaces
-- files removed after bootstrap
+- generated artifacts
 - validation requirements
 
-A generated app should keep its selected answers and template version in `.mycli/project.yml`. That gives `mycli repair ios` enough information to detect and safely restore missing shared setup later.
+A generated app keeps its selected answers and template version in `.mycli/project.yml`. That gives a future `mycli repair ios` command enough information to detect and safely restore missing shared setup later.
+
+See [Developing StarterApp without breaking `mycli`](docs/mycli-compatibility.md) before changing the template contract or publishing a new template tag.
 
 ## Project structure
 
@@ -122,25 +124,36 @@ Edit `project.yml` for:
 - package dependencies
 - device families
 
-## Manual bootstrap
+## Bootstrap with `mycli`
 
-`mycli new ios` should be the preferred path. Until that command is implemented:
-
-1. Duplicate the repository without its Git history.
-2. Rename app, test, UI-test directories, files, targets, and schemes.
-3. Replace `StarterApp`, `com.hoangbkit.starterapp`, and the signing team using `template.yml` as the contract.
-4. Update StoreKit product identifiers and legal URLs.
-5. Replace the icon and sample app content.
-6. Rewrite `README.md` for the generated app.
-7. Remove `template.yml` and `scripts/validate-template.sh`.
-8. Write `.mycli/project.yml` with the applied template version and choices.
-9. Validate the result using the module/target name:
+Create a new app interactively from the stable tagged template:
 
 ```bash
-scripts/validate-bootstrap.sh /path/to/App AppName com.hoangbkit.appname --build
+mycli new ios
 ```
 
-The validator rejects unresolved StarterApp names, placeholder bundle IDs, `example.com` URLs, missing targets, failed project generation, and missing shared schemes.
+During StarterApp development, test the current checkout without creating a tag:
+
+```bash
+rm -rf ~/Developer/tmp/StarterCompat
+
+mycli new ios StarterCompat \
+  --bundle-id com.hoangbkit.startercompat \
+  --template-path "$PWD" \
+  --destination ~/Developer/tmp/StarterCompat \
+  --no-git \
+  --yes
+```
+
+Then validate the generated app on macOS:
+
+```bash
+cd ~/Developer/tmp/StarterCompat
+make generate
+make build
+```
+
+`master` is the actively developed template. Published version tags are immutable inputs for `mycli`; do not force-update or delete them. The full compatibility workflow, safe changes, breaking-change process, and tag checklist are documented in [`docs/mycli-compatibility.md`](docs/mycli-compatibility.md).
 
 ## Optional capabilities
 
@@ -157,7 +170,7 @@ Milesto demonstrates widgets, app groups, and SwiftData. ShotVault demonstrates 
 ## Before release
 
 - Set the App Store ID so Share App becomes available.
-- Replace every `example.com` URL.
+- Replace every placeholder legal URL.
 - Replace StarterApp StoreKit product identifiers.
 - Replace the placeholder app icon.
 - Review the privacy manifest for the real app and linked SDKs.
