@@ -41,9 +41,11 @@ if git ls-files '*.xcodeproj/*' '*.xcworkspace/*' | grep -q .; then
 fi
 
 [ -x ci_scripts/ci_post_clone.sh ] || fail "ci_scripts/ci_post_clone.sh must be executable"
+[ -x scripts/validate-template.sh ] || fail "scripts/validate-template.sh must be executable"
 [ -x scripts/validate-bootstrap.sh ] || fail "scripts/validate-bootstrap.sh must be executable"
 
 sh -n ci_scripts/ci_post_clone.sh
+sh -n scripts/validate-template.sh
 sh -n scripts/validate-bootstrap.sh
 
 if command -v plutil >/dev/null 2>&1; then
