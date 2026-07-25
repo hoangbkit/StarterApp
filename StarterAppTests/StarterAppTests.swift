@@ -6,15 +6,28 @@ import XCTest
 @MainActor
 final class StarterAppTests: XCTestCase {
     func testStarterConfigurationUsesExpectedIdentity() {
-        XCTAssertEqual(AppConfiguration.displayName, "StarterApp")
         XCTAssertEqual(AppConfiguration.monthlyProductID, "com.hoangbkit.starterapp.pro.monthly")
         XCTAssertEqual(AppConfiguration.yearlyProductID, "com.hoangbkit.starterapp.pro.yearly")
+        XCTAssertFalse(AppConfiguration.displayName.isEmpty)
+        XCTAssertFalse(AppConfiguration.bundleIdentifier.isEmpty)
     }
 
     func testStarterURLsAreHTTPS() {
         XCTAssertEqual(AppConfiguration.supportURL.scheme, "https")
         XCTAssertEqual(AppConfiguration.privacyURL.scheme, "https")
         XCTAssertEqual(AppConfiguration.termsURL.scheme, "https")
+    }
+
+    func testAppStoreSharingStaysHiddenUntilConfigured() {
+        XCTAssertNil(AppConfiguration.appStoreID)
+        XCTAssertNil(AppConfiguration.appStoreURL)
+    }
+
+    func testPersistentKeysAreNamespaced() {
+        XCTAssertTrue(AppConfiguration.simulatedPurchaseModeDefaultsKey.hasSuffix(".developer.simulated-purchases-enabled"))
+        XCTAssertTrue(AppConfiguration.simulatedPurchasePersistenceKey.hasSuffix(".simulated-purchases"))
+        XCTAssertTrue(AppConfiguration.themeStateKey.hasSuffix(".theme-state"))
+        XCTAssertTrue(AppRouter.onboardingCompletionKey.hasSuffix(".has-completed-onboarding"))
     }
 
     func testPurchaseConfigurationUsesYearlyAsPreferredProduct() {

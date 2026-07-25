@@ -1,0 +1,109 @@
+schemaVersion: 1
+templateVersion: 1
+
+template:
+  name: StarterApp
+  repository: hoangbkit/StarterApp
+  platform: iOS
+  sourceBranch: master
+  minimumXcodeVersion: '26.0'
+  minimumXcodeGenVersion: '2.46.0'
+
+identity:
+  appName: StarterApp
+  moduleName: StarterApp
+  bundleIdentifier: com.hoangbkit.starterapp
+  developmentTeam: J458WW3452
+  appTarget: StarterApp
+  unitTestTarget: StarterAppTests
+  uiTestTarget: StarterAppUITests
+
+defaults:
+  deploymentTarget: '26.0'
+  deviceFamilies:
+    - iPhone
+  developmentLanguage: en
+  appFoundationVersion: 0.1.8
+  monetization: subscriptions
+  productIDs:
+    monthly: com.hoangbkit.starterapp.pro.monthly
+    yearly: com.hoangbkit.starterapp.pro.yearly
+
+features:
+  included:
+    - appFoundation
+    - purchases
+    - themes
+    - onboarding
+    - settings
+    - privacyManifest
+    - stringCatalog
+    - unitTests
+    - uiTests
+    - githubActions
+    - xcodeCloud
+  optional:
+    widgets: false
+    swiftData: false
+    appGroups: false
+    alternateAppIcons: false
+    documentTypes: false
+
+rename:
+  directories:
+    - StarterApp
+    - StarterAppTests
+    - StarterAppUITests
+  files:
+    - StarterApp/App/StarterAppApp.swift
+    - StarterAppTests/StarterAppTests.swift
+    - StarterAppUITests/StarterAppUITests.swift
+  exactValues:
+    - StarterApp
+    - com.hoangbkit.starterapp
+    - J458WW3452
+  generatedPaths:
+    - Generated/StarterApp-Info.plist
+    - StarterApp.xcodeproj
+
+configurationSurfaces:
+  - project.yml
+  - Makefile
+  - StarterApp/App/AppConfiguration.swift
+  - StarterApp/Configuration.storekit
+  - StarterApp/PrivacyInfo.xcprivacy
+  - StarterApp/Localizable.xcstrings
+  - .github/workflows/ios.yml
+  - ci_scripts/ci_post_clone.sh
+
+lifecycle:
+  removeAfterBootstrap:
+    - template.yml
+    - scripts/validate-template.sh
+  generatedManifest: .mycli/project.yml
+
+validation:
+  requiredFiles:
+    - project.yml
+    - Makefile
+    - StarterApp/App/StarterAppApp.swift
+    - StarterApp/App/AppConfiguration.swift
+    - StarterApp/Configuration.storekit
+    - StarterApp/PrivacyInfo.xcprivacy
+    - StarterApp/Localizable.xcstrings
+    - StarterAppTests/StarterAppTests.swift
+    - StarterAppUITests/StarterAppUITests.swift
+    - .github/workflows/ios.yml
+    - ci_scripts/ci_post_clone.sh
+  identitySurfaces:
+    - project.yml
+    - Makefile
+    - StarterApp
+    - StarterAppTests
+    - StarterAppUITests
+    - .github/workflows
+    - ci_scripts
+  forbiddenAfterBootstrap:
+    - StarterApp
+    - com.hoangbkit.starterapp
+    - https://example.com

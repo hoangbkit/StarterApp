@@ -2,8 +2,8 @@
 build/
 DerivedData/
 Generated/
-StarterApp.xcodeproj/
+*.xcodeproj/
+*.xcworkspace/
 *.xcuserstate
 xcuserdata/
-*.xcworkspace/xcuserdata/
 .swiftpm/

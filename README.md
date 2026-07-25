@@ -1,191 +1,43 @@
 # StarterApp
 
-A lightweight iOS starter app for quickly beginning a new Hoang project.
+The canonical iOS template for Hoang's apps and the source template for `mycli new ios`.
 
-`StarterApp` is meant to be cloned, renamed, and customized. It provides the shared project foundation and purchase setup, while every real app remains free to design its own features, onboarding, settings, data model, and navigation.
+StarterApp keeps the reusable production foundation from MiLove, Milesto, and ShotVault without copying their app-specific data models, navigation, widgets, permissions, or business logic.
 
-## What StarterApp includes
+## Shared baseline
 
-### Project foundation
+- iPhone-first, iOS 26+
+- Swift 6 with complete strict concurrency
+- SwiftUI, Observation, and rounded typography
+- XcodeGen 2.46.0+
+- AppFoundation 0.1.8
+- centralized `PurchaseManager` and `ThemeManager` injection
+- monthly and yearly StoreKit subscriptions
+- Debug purchase simulation and a local StoreKit configuration
+- theme-aware paywall and settings
+- app-owned onboarding and launch routing
+- privacy manifest and string catalog
+- unit-test and UI-test targets
+- GitHub Actions validation
+- Xcode Cloud post-clone project generation
 
-- iOS 26+
-- Swift 6 with strict concurrency
-- SwiftUI and Observation
-- XcodeGen 2.45.4+
-- App, unit-test, and UI-test targets
-- Generated Xcode project from `project.yml`
-- GitHub Actions build and unit-test validation
-- Privacy manifest
-- String catalog structure
-- App icon and asset catalog placeholders
+Widgets, SwiftData, app groups, alternate icons, and document types are deliberately optional. `mycli` can add them when an app needs them rather than forcing every app to carry them.
 
-### App structure
+## Template contract
 
-The app entry only assembles dependencies. Root navigation is separated into small files:
+`template.yml` is the machine-readable contract used by `mycli`. It defines:
 
-```text
-StarterApp/App/
-├── AppConfiguration.swift
-├── AppLaunchState.swift
-├── AppRootView.swift
-├── AppRouter.swift
-└── StarterAppApp.swift
-```
+- template and schema versions
+- canonical identity values
+- renameable directories, files, targets, schemes, and bundle IDs
+- included and optional features
+- configuration surfaces
+- files removed after bootstrap
+- validation requirements
 
-The launch flow supports:
+A generated app should keep its selected answers and template version in `.mycli/project.yml`. That gives `mycli repair ios` enough information to detect and safely restore missing shared setup later.
 
-```text
-Preparing
-  → Onboarding
-  → Main app
-  → Recoverable launch error
-```
-
-### App-owned onboarding
-
-StarterApp includes a simple three-page SwiftUI onboarding flow with:
-
-- swipeable pages
-- SF Symbol illustrations
-- Next, Skip, and Get Started actions
-- persisted completion state
-- an option to show onboarding again from the main screen
-
-Onboarding intentionally stays inside StarterApp and each cloned app. It is not provided by AppFoundation because real apps often need custom layouts, permissions, profile setup, initial data entry, animations, and branding.
-
-### Purchases through AppFoundation
-
-StarterApp imports `hoangbkit/AppFoundation` for shared purchase infrastructure.
-
-AppFoundation handles:
-
-- StoreKit product loading
-- transaction verification and observation
-- entitlement evaluation
-- foreground entitlement refresh
-- restore purchases
-- pending and failure states
-- Debug purchase simulation
-- reusable paywall mechanics
-
-StarterApp owns:
-
-- product identifiers
-- simulated product values
-- paywall text and legal URLs
-- when the paywall appears
-- which app features require Pro
-
-StarterApp contains no app-local StoreKit manager.
-
-### Purchase testing modes
-
-The **StarterApp** scheme uses `StarterApp/Configuration.storekit` for local StoreKit testing.
-
-The **StarterApp Simulated** scheme sets:
-
-```text
-APPFOUNDATION_PURCHASE_MODE=simulated
-```
-
-Simulation is available only in Debug. AppFoundation always resolves Release builds to live StoreKit.
-
-## Requirements
-
-- Xcode 26+
-- XcodeGen 2.45.4+
-- Team ID `J458WW3452` or your own signing team
-
-Install XcodeGen:
-
-```bash
-brew install xcodegen
-```
-
-## Generate and open
-
-`project.yml` is the source of truth. `StarterApp.xcodeproj` is generated and ignored by Git.
-
-```bash
-make generate
-make open
-```
-
-## Build and test
-
-```bash
-make build
-make test
-make ui-test
-```
-
-## Deploy to an iPhone
-
-Configure your Apple ID once in Xcode > Settings > Accounts.
-
-Live StoreKit:
-
-```bash
-make devices
-make deploy se2
-```
-
-Debug simulated purchases:
-
-```bash
-make deploy se2 BILLING=simulated
-```
-
-Use a device identifier directly:
-
-```bash
-make deploy DEVICE_ID=<identifier>
-```
-
-Override the signing team:
-
-```bash
-make deploy se2 TEAM_ID=<team-id>
-```
-
-`BILLING` accepts `live` or `simulated`.
-
-## App configuration
-
-Runtime values are collected in `StarterApp/App/AppConfiguration.swift`:
-
-- display name
-- App Store ID
-- monthly and yearly product IDs
-- support, privacy, and terms URLs
-- product ordering
-- simulated products
-- paywall copy
-- purchase service construction
-
-Build and signing values live in `project.yml`:
-
-- target and product names
-- bundle identifiers
-- deployment target
-- Team ID
-- version and build number
-- package dependency
-- shared schemes
-
-## Starting a new app
-
-1. Clone or duplicate this repository.
-2. Rename the app, source folders, targets, and schemes.
-3. Update bundle identifiers and signing values in `project.yml`.
-4. Replace values in `AppConfiguration.swift`.
-5. Replace the app icon and accent assets.
-6. Customize or replace `OnboardingView.swift`.
-7. Replace `ContentView.swift` with the real app experience.
-8. Update settings, privacy manifest, strings, StoreKit products, and legal URLs.
-9. Run `make generate`, `make build`, and `make test`.
-
-## Current repository structure
+## Project structure
 
 ```text
 StarterApp/
@@ -201,22 +53,112 @@ StarterApp/
 ├── Configuration.storekit
 ├── PrivacyInfo.xcprivacy
 ├── Localizable.xcstrings
-├── Assets.xcassets
-└── AppIcon.icon
+└── Assets.xcassets
 
 StarterAppTests/
 StarterAppUITests/
+ci_scripts/ci_post_clone.sh
+scripts/validate-template.sh
+scripts/validate-bootstrap.sh
+template.yml
 project.yml
 Makefile
-README.md
 ```
+
+## Generate, build, and test
+
+`project.yml` is the source of truth. Generated Xcode projects and workspaces are ignored by Git.
+
+```bash
+make validate-template
+make generate
+make build
+make test
+make ui-test
+```
+
+Install XcodeGen when needed:
+
+```bash
+brew install xcodegen
+```
+
+## Xcode Cloud
+
+`ci_scripts/ci_post_clone.sh` installs XcodeGen when necessary, generates the project, and verifies that Xcode can list it. This allows repositories to omit the generated `.xcodeproj` while remaining compatible with Xcode Cloud.
+
+## Purchase testing
+
+The **StarterApp** scheme uses `StarterApp/Configuration.storekit`.
+
+The **StarterApp Simulated** scheme sets:
+
+```text
+APPFOUNDATION_PURCHASE_MODE=simulated
+```
+
+Simulation is Debug-only. Release builds resolve to live StoreKit.
+
+## Runtime configuration
+
+Edit `StarterApp/App/AppConfiguration.swift` for:
+
+- App Store ID
+- monthly and yearly product IDs
+- support, privacy, and terms URLs
+- simulated products and prices
+- paywall copy
+- purchase and theme state construction
+
+The display name and persistence keys derive from the generated bundle where possible, reducing the number of identity values that bootstrap must replace.
+
+Edit `project.yml` for:
+
+- target, product, and scheme names
+- bundle identifiers
+- signing team
+- deployment target
+- version and build number
+- package dependencies
+- device families
+
+## Manual bootstrap
+
+`mycli new ios` should be the preferred path. Until that command is implemented:
+
+1. Duplicate the repository without its Git history.
+2. Rename app, test, UI-test directories, files, targets, and schemes.
+3. Replace `StarterApp`, `com.hoangbkit.starterapp`, and the signing team using `template.yml` as the contract.
+4. Update StoreKit product identifiers and legal URLs.
+5. Replace the icon and sample app content.
+6. Remove `template.yml` and `scripts/validate-template.sh`.
+7. Write `.mycli/project.yml` with the applied template version and choices.
+8. Validate the result:
+
+```bash
+scripts/validate-bootstrap.sh /path/to/App AppName com.hoangbkit.appname --build
+```
+
+The validator rejects unresolved StarterApp names, placeholder bundle IDs, `example.com` URLs, missing targets, failed project generation, and missing shared schemes.
+
+## Optional capabilities
+
+Add only when required:
+
+- **Widgets:** widget target, shared models, app group, widget snapshots, timeline reloads
+- **SwiftData:** model container, migration/recovery policy, maintenance tasks
+- **App groups:** shared preferences, entitlements, and extension synchronization
+- **Alternate icons:** icon assets and Pro access policy
+- **Document types:** URL schemes, exported UTTypes, and backup/import flows
+
+Milesto demonstrates widgets, app groups, and SwiftData. ShotVault demonstrates SwiftData recovery and app-specific coordinators. MiLove demonstrates a smaller domain store and a focused root flow. These remain references, not mandatory template layers.
 
 ## Before release
 
-- Replace all `example.com` URLs.
-- Replace StarterApp product identifiers with App Store Connect product identifiers.
+- Set the App Store ID so Share App becomes available.
+- Replace every `example.com` URL.
+- Replace StarterApp StoreKit product identifiers.
 - Replace the placeholder app icon.
 - Review the privacy manifest for the real app and linked SDKs.
-- Move real user-facing strings into the string catalog.
-- Pin AppFoundation to a stable version or revision.
-- Build and test both Debug and Release configurations.
+- Move user-facing strings into the string catalog.
+- Build and test Debug and Release configurations.

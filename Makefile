@@ -1,11 +1,13 @@
-PROJECT := StarterApp.xcodeproj
-SCHEME := StarterApp
-UI_TEST_SCHEME := StarterApp UI Tests
+PROJECT_NAME ?= StarterApp
+PROJECT := $(PROJECT_NAME).xcodeproj
+SCHEME ?= StarterApp
+UI_TEST_SCHEME ?= StarterApp UI Tests
+UNIT_TEST_TARGET ?= StarterAppTests
 CONFIGURATION ?= Debug
 BILLING ?= live
-BUNDLE_ID := com.hoangbkit.starterapp
-BUILD_DIR := build
-APP_PATH := $(BUILD_DIR)/Build/Products/$(CONFIGURATION)-iphoneos/StarterApp.app
+BUNDLE_ID ?= com.hoangbkit.starterapp
+BUILD_DIR ?= build
+APP_PATH := $(BUILD_DIR)/Build/Products/$(CONFIGURATION)-iphoneos/$(PROJECT_NAME).app
 
 # Allow `make deploy se2` as shorthand for `make deploy DEVICE_NAME=se2`.
 DEVICE_TARGETS := deploy build install launch
@@ -33,11 +35,12 @@ ifdef TEAM_ID
 TEAM_ARG := DEVELOPMENT_TEAM=$(TEAM_ID)
 endif
 
-.PHONY: help generate open build test ui-test devices install launch deploy clean
+.PHONY: help validate-template generate open build test ui-test devices install launch deploy clean
 
 help:
 	@echo "Targets:"
-	@echo "  make generate                                  Generate StarterApp.xcodeproj with XcodeGen"
+	@echo "  make validate-template                         Validate the reusable template contract"
+	@echo "  make generate                                  Generate $(PROJECT) with XcodeGen"
 	@echo "  make open                                      Generate and open the project"
 	@echo "  make build                                     Build for a generic iOS Simulator"
 	@echo "  make test                                      Run unit tests on an available iPhone Simulator"
@@ -51,9 +54,12 @@ help:
 	@echo "Optional: TEAM_ID=<team id> overrides the configured signing team."
 	@echo "BILLING accepts live or simulated. Release builds always use live StoreKit."
 
+validate-template:
+	./scripts/validate-template.sh
+
 generate:
 	@command -v xcodegen >/dev/null 2>&1 || { \
-		echo "XcodeGen 2.45.4+ is required. Install it with: brew install xcodegen"; \
+		echo "XcodeGen 2.46.0+ is required. Install it with: brew install xcodegen"; \
 		exit 1; \
 	}
 	xcodegen generate
@@ -98,7 +104,7 @@ test: generate
 		-scheme "$(SCHEME)" \
 		-destination "platform=iOS Simulator,id=$$SIMULATOR_ID" \
 		-derivedDataPath "$(BUILD_DIR)" \
-		-only-testing:StarterAppTests \
+		-only-testing:$(UNIT_TEST_TARGET) \
 		CODE_SIGNING_ALLOWED=NO
 
 ui-test: generate

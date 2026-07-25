@@ -2,9 +2,7 @@ name: iOS Validation
 
 on:
   push:
-    branches: [master]
   pull_request:
-    branches: [master]
 
 permissions:
   contents: read
@@ -30,12 +28,12 @@ jobs:
       - name: Install pinned XcodeGen
         run: |
           brew install mint
-          mint install yonaskolb/XcodeGen@2.45.4
+          mint install yonaskolb/XcodeGen@2.46.0
           echo "$HOME/.mint/bin" >> "$GITHUB_PATH"
           "$HOME/.mint/bin/xcodegen" version
 
-      - name: Generate project
-        run: make generate
+      - name: Validate template contract
+        run: make validate-template
 
       - name: Build app
         run: make build

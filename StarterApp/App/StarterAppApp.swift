@@ -6,7 +6,7 @@ import UIKit
 @MainActor
 struct StarterAppApp: App {
     @State private var purchases = AppConfiguration.makePurchaseManager()
-    @State private var themes = ThemeManager(catalog: .foundationDefaults)
+    @State private var themes = AppConfiguration.makeThemeManager()
 
     init() {
         let navigationBar = UINavigationBar.appearance()

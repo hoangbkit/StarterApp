@@ -115,8 +115,10 @@ struct SettingsView: View {
                         Label("Rate the App", systemImage: "star")
                     }
 
-                    ShareLink(item: AppConfiguration.supportURL) {
-                        Label("Share App", systemImage: "square.and.arrow.up")
+                    if let appStoreURL = AppConfiguration.appStoreURL {
+                        ShareLink(item: appStoreURL) {
+                            Label("Share App", systemImage: "square.and.arrow.up")
+                        }
                     }
                 }
                 .listRowBackground(theme.surfaceColor)
@@ -148,7 +150,7 @@ struct SettingsView: View {
             .listSectionSeparatorTint(theme.borderColor)
             .foregroundStyle(theme.primaryForegroundColor)
             .navigationTitle("Settings")
-            .navigationSubtitle("Make StarterApp feel like yours")
+            .navigationSubtitle("Make \(AppConfiguration.displayName) feel like yours")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -211,5 +213,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(AppConfiguration.makePreviewPurchaseManager())
-        .environment(ThemeManager(catalog: .foundationDefaults))
+        .environment(AppConfiguration.makeThemeManager())
 }

@@ -4,7 +4,9 @@ import Observation
 @MainActor
 @Observable
 final class AppRouter {
-    static let onboardingCompletionKey = "hasCompletedOnboarding"
+    static var onboardingCompletionKey: String {
+        "\(AppConfiguration.bundleIdentifier).has-completed-onboarding"
+    }
 
     private(set) var launchState: AppLaunchState = .preparing
 
