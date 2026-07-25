@@ -85,7 +85,7 @@ brew install xcodegen
 
 ## Xcode Cloud
 
-`ci_scripts/ci_post_clone.sh` installs XcodeGen when necessary, generates the project, and verifies that Xcode can list it. This allows repositories to omit the generated `.xcodeproj` while remaining compatible with Xcode Cloud.
+`ci_scripts/ci_post_clone.sh` installs the pinned XcodeGen version, generates the project, and verifies that Xcode can list it. This allows repositories to omit the generated `.xcodeproj` while remaining compatible with Xcode Cloud.
 
 ## Purchase testing
 
@@ -131,9 +131,10 @@ Edit `project.yml` for:
 3. Replace `StarterApp`, `com.hoangbkit.starterapp`, and the signing team using `template.yml` as the contract.
 4. Update StoreKit product identifiers and legal URLs.
 5. Replace the icon and sample app content.
-6. Remove `template.yml` and `scripts/validate-template.sh`.
-7. Write `.mycli/project.yml` with the applied template version and choices.
-8. Validate the result:
+6. Rewrite `README.md` for the generated app.
+7. Remove `template.yml` and `scripts/validate-template.sh`.
+8. Write `.mycli/project.yml` with the applied template version and choices.
+9. Validate the result using the module/target name:
 
 ```bash
 scripts/validate-bootstrap.sh /path/to/App AppName com.hoangbkit.appname --build
