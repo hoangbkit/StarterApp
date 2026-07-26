@@ -23,7 +23,7 @@ defaults:
   deviceFamilies:
     - iPhone
   developmentLanguage: en
-  appFoundationVersion: 0.1.8
+  appFoundationVersion: 0.1.11
   monetization: subscriptions
   productIDs:
     monthly: com.hoangbkit.starterapp.pro.monthly
