@@ -10,18 +10,21 @@ StarterApp keeps the reusable production foundation from MiLove, Milesto, and Sh
 - Swift 6 with complete strict concurrency
 - SwiftUI, Observation, and rounded typography
 - XcodeGen 2.46.0+
-- AppFoundation 0.1.8
+- AppFoundation 0.1.11
 - centralized `PurchaseManager` and `ThemeManager` injection
 - monthly and yearly StoreKit subscriptions
 - Debug purchase simulation and a local StoreKit configuration
-- theme-aware paywall and settings
+- `ClaudePaywallView`, Pro-plan settings, and toolbar upgrade entry points
+- AppFoundation theme and app-icon pickers
+- four working sample app icons: Default, Midnight, Sunset, and Mint
+- Debug-only Screenshot Studio and Promo Video Studio
 - app-owned onboarding and launch routing
 - privacy manifest and string catalog
 - unit-test and UI-test targets
 - GitHub Actions validation
 - Xcode Cloud post-clone project generation
 
-Widgets, SwiftData, app groups, alternate icons, and document types are deliberately optional. `mycli` can add them when an app needs them rather than forcing every app to carry them.
+Widgets, SwiftData, app groups, and document types remain optional. The included alternate icons demonstrate the complete asset-catalog, XcodeGen, entitlement, and Settings flow and can be replaced during bootstrap.
 
 ## Template contract
 
@@ -49,6 +52,10 @@ StarterApp/
 │   ├── AppRootView.swift
 │   ├── AppRouter.swift
 │   └── StarterAppApp.swift
+├── Features/
+│   └── DeveloperStudio/
+│       ├── StarterScreenshotStudioView.swift
+│       └── StarterPromoVideoStudioView.swift
 ├── ContentView.swift
 ├── OnboardingView.swift
 ├── SettingsView.swift
@@ -109,7 +116,8 @@ Edit `StarterApp/App/AppConfiguration.swift` for:
 - monthly and yearly product IDs
 - support, privacy, and terms URLs
 - simulated products and prices
-- paywall copy
+- Claude paywall copy
+- Pro-plan Settings copy
 - purchase and theme state construction
 
 The display name and persistence keys derive from the generated bundle where possible, reducing the number of identity values that bootstrap must replace.
@@ -122,6 +130,7 @@ Edit `project.yml` for:
 - deployment target
 - version and build number
 - package dependencies
+- alternate app-icon asset names
 - device families
 
 ## Bootstrap with `mycli`
@@ -162,7 +171,7 @@ Add only when required:
 - **Widgets:** widget target, shared models, app group, widget snapshots, timeline reloads
 - **SwiftData:** model container, migration/recovery policy, maintenance tasks
 - **App groups:** shared preferences, entitlements, and extension synchronization
-- **Alternate icons:** icon assets and Pro access policy
+- **Additional alternate icons:** add app-icon sets, picker previews, and the corresponding XcodeGen names
 - **Document types:** URL schemes, exported UTTypes, and backup/import flows
 
 Milesto demonstrates widgets, app groups, and SwiftData. ShotVault demonstrates SwiftData recovery and app-specific coordinators. MiLove demonstrates a smaller domain store and a focused root flow. These remain references, not mandatory template layers.
@@ -172,7 +181,7 @@ Milesto demonstrates widgets, app groups, and SwiftData. ShotVault demonstrates 
 - Set the App Store ID so Share App becomes available.
 - Replace every placeholder legal URL.
 - Replace StarterApp StoreKit product identifiers.
-- Replace the placeholder app icon.
+- Replace the four sample app icons with the real app identity.
 - Review the privacy manifest for the real app and linked SDKs.
 - Move user-facing strings into the string catalog.
 - Build and test Debug and Release configurations.
