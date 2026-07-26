@@ -14,10 +14,19 @@ struct SettingsView: View {
     @State private var restoreMessage: String?
 
     #if DEBUG
-    @AppStorage(AppConfiguration.simulatedPurchaseModeDefaultsKey)
-    private var simulatedPurchasesEnabled = false
     @State private var isChangingPurchaseMode = false
     #endif
+
+    private var appIcons: [AppIconOption] {
+        [
+            AppIconOption(
+                title: "Default",
+                alternateIconName: nil,
+                previewImageName: "AppIcon",
+                accentColor: theme.accentColor
+            )
+        ]
+    }
 
     var body: some View {
         NavigationStack {
@@ -32,8 +41,22 @@ struct SettingsView: View {
                     )
                     .padding(.vertical, 4)
                 } header: {
-                    Text("Appearance")
+                    Text("App Theme")
+                } footer: {
+                    Text("Choose the theme used throughout the app.")
                 }
+                .listRowBackground(theme.surfaceColor)
+
+                AppIconPickerSection(
+                    icons: appIcons,
+                    footer: "Add alternate icon assets and AppIconOption entries when this app needs more choices.",
+                    isLocked: { icon in
+                        icon.requiresUnlock && !purchases.hasPro
+                    },
+                    onRequestUnlock: { _ in
+                        isShowingPaywall = true
+                    }
+                )
                 .listRowBackground(theme.surfaceColor)
 
                 Section {
@@ -60,49 +83,6 @@ struct SettingsView: View {
                     Text("Purchases")
                 }
                 .listRowBackground(theme.surfaceColor)
-
-                #if DEBUG
-                Section {
-                    Toggle(isOn: $simulatedPurchasesEnabled) {
-                        Label("Simulated Purchases", systemImage: "hammer.fill")
-                    }
-                    .disabled(purchases.isBusy || isChangingPurchaseMode)
-                    .onChange(of: simulatedPurchasesEnabled) { _, enabled in
-                        Task {
-                            await changePurchaseMode(simulated: enabled)
-                        }
-                    }
-
-                    LabeledContent(
-                        "Current Mode",
-                        value: purchases.isUsingSimulatedPurchases ? "Simulated" : "Live StoreKit"
-                    )
-
-                    if isChangingPurchaseMode {
-                        HStack {
-                            ProgressView()
-                                .tint(theme.accentColor)
-                            Text("Changing purchase mode…")
-                                .foregroundStyle(theme.secondaryForegroundColor)
-                        }
-                    }
-
-                    if purchases.isUsingSimulatedPurchases {
-                        Button("Reset Simulated Purchases", role: .destructive) {
-                            Task {
-                                await purchases.resetSimulatedPurchases()
-                                restoreMessage = "Simulated purchases were reset."
-                            }
-                        }
-                        .disabled(purchases.isBusy || isChangingPurchaseMode)
-                    }
-                } header: {
-                    Text("Developer")
-                } footer: {
-                    Text("Uses AppFoundation's configurable in-process purchase simulator. Release builds always use live StoreKit.")
-                }
-                .listRowBackground(theme.surfaceColor)
-                #endif
 
                 Section {
                     Link(destination: AppConfiguration.supportURL) {
@@ -143,6 +123,11 @@ struct SettingsView: View {
                     }
                 }
                 .listRowBackground(theme.surfaceColor)
+
+                #if DEBUG
+                developerSection
+                    .listRowBackground(theme.surfaceColor)
+                #endif
             }
             .scrollContentBackground(.hidden)
             .background(StarterThemeBackground(theme: theme))
@@ -183,6 +168,54 @@ struct SettingsView: View {
         .animation(.smooth, value: theme.id)
     }
 
+    #if DEBUG
+    private var developerSection: some View {
+        Section {
+            Toggle(
+                "Use Simulated Purchases",
+                isOn: Binding(
+                    get: { purchases.isUsingSimulatedPurchases },
+                    set: { enabled in
+                        Task {
+                            isChangingPurchaseMode = true
+                            await purchases.setSimulatedPurchasesEnabled(enabled)
+                            isChangingPurchaseMode = false
+                        }
+                    }
+                )
+            )
+            .disabled(purchases.isBusy || isChangingPurchaseMode)
+
+            LabeledContent("Purchase mode", value: purchases.isUsingSimulatedPurchases ? "Simulated" : "Live StoreKit")
+            LabeledContent("Pro entitlement", value: developerEntitlementTitle)
+
+            Button("Reset Simulated Purchases", systemImage: "arrow.counterclockwise") {
+                Task {
+                    await purchases.resetSimulatedPurchases()
+                    restoreMessage = "Simulated purchases were reset."
+                }
+            }
+            .disabled(!purchases.isUsingSimulatedPurchases || purchases.isBusy || isChangingPurchaseMode)
+
+            Button("Show Paywall", systemImage: "creditcard.fill") {
+                isShowingPaywall = true
+            }
+        } header: {
+            Text("Developer")
+        } footer: {
+            Text("Debug-only AppFoundation purchase controls and presentation previews. Release builds always use live StoreKit.")
+        }
+    }
+
+    private var developerEntitlementTitle: String {
+        switch purchases.entitlementState {
+        case .checking: "Checking"
+        case .inactive: "Free"
+        case .active: "Pro"
+        }
+    }
+    #endif
+
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
@@ -200,14 +233,6 @@ struct SettingsView: View {
             purchases.clearActivity()
         }
     }
-
-    #if DEBUG
-    private func changePurchaseMode(simulated: Bool) async {
-        isChangingPurchaseMode = true
-        await purchases.setSimulatedPurchasesEnabled(simulated)
-        isChangingPurchaseMode = false
-    }
-    #endif
 }
 
 #Preview {
