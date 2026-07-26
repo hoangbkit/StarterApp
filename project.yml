@@ -33,7 +33,7 @@ settings:
 packages:
   AppFoundation:
     url: https://github.com/hoangbkit/AppFoundation.git
-    exactVersion: 0.1.8
+    exactVersion: 0.1.11
 fileGroups:
 - README.md
 - template.yml
