@@ -18,6 +18,12 @@ StarterApp/App/AppConfiguration.swift
 StarterApp/Configuration.storekit
 StarterApp/PrivacyInfo.xcprivacy
 StarterApp/Localizable.xcstrings
+StarterApp/Features/DeveloperStudio/StarterScreenshotStudioView.swift
+StarterApp/Features/DeveloperStudio/StarterPromoVideoStudioView.swift
+StarterApp/Assets.xcassets/AppIcon.appiconset/Default.png
+StarterApp/Assets.xcassets/AppIconMidnight.appiconset/Midnight.png
+StarterApp/Assets.xcassets/AppIconSunset.appiconset/Sunset.png
+StarterApp/Assets.xcassets/AppIconMint.appiconset/Mint.png
 StarterAppTests/StarterAppTests.swift
 StarterAppUITests/StarterAppUITests.swift
 .github/workflows/ios.yml
@@ -31,7 +37,9 @@ printf '%s\n' "$required_files" | while IFS= read -r path; do
 done
 
 grep -q '^name: StarterApp$' project.yml || fail "project.yml identity changed without updating template.yml"
-grep -q 'exactVersion: 0.1.8' project.yml || fail "AppFoundation must use exactVersion 0.1.8"
+grep -q 'exactVersion: 0.1.11' project.yml || fail "AppFoundation must use exactVersion 0.1.11"
+grep -q 'appFoundationVersion: 0.1.11' template.yml || fail "template.yml must declare AppFoundation 0.1.11"
+grep -q 'ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: "AppIconMidnight AppIconSunset AppIconMint"' project.yml || fail "alternate app icons are not registered"
 grep -q "TARGETED_DEVICE_FAMILY: '1'" project.yml || fail "StarterApp must default to iPhone-only"
 grep -q 'bundleIdentifier: com.hoangbkit.starterapp' template.yml || fail "template bundle identifier is missing"
 grep -q 'minimumXcodeGenVersion: 2.46.0' project.yml || fail "XcodeGen version is not pinned"
