@@ -95,7 +95,7 @@ struct ContentView: View {
             .navigationSubtitle("Everything needed to start building")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button {
                         isShowingSettings = true
                     } label: {
@@ -104,14 +104,24 @@ struct ContentView: View {
                     .foregroundStyle(theme.primaryForegroundColor)
                     .accessibilityLabel("Settings")
                 }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isShowingPaywall = true
+                    } label: {
+                        Image(systemName: "crown.fill")
+                    }
+                    .foregroundStyle(theme.accentColor)
+                    .accessibilityLabel("Open Pro")
+                }
             }
         }
         .tint(theme.accentColor)
         .animation(.smooth, value: theme.id)
         .sheet(isPresented: $isShowingPaywall) {
-            PaywallView(
-                purchaseManager: purchases,
-                configuration: AppConfiguration.paywallConfiguration
+            ClaudePaywallView(
+                purchases: purchases,
+                configuration: AppConfiguration.claudePaywallConfiguration
             )
         }
         .sheet(isPresented: $isShowingSettings) {
@@ -290,7 +300,7 @@ struct ContentView: View {
             Button {
                 isShowingPaywall = true
             } label: {
-                Label("Open Theme-Aware Paywall", systemImage: "crown.fill")
+                Label("Open Claude Paywall", systemImage: "crown.fill")
             }
             .buttonStyle(StarterPrimaryButtonStyle(theme: theme))
 
