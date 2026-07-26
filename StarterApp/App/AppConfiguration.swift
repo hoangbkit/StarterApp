@@ -103,9 +103,45 @@ enum AppConfiguration {
             ),
         ],
         preferredProductID: yearlyProductID,
+        highlightedProductID: yearlyProductID,
         purchaseButtonTitle: "Get Pro plan",
         privacyURL: privacyURL,
         termsURL: termsURL
+    )
+
+    static let claudePaywallConfiguration = FoundationPaywallConfiguration(
+        title: "Get more \(displayName)",
+        subtitle: "Choose monthly or yearly access",
+        features: [
+            FoundationPaywallFeature(
+                id: "all-features",
+                systemImage: "checkmark",
+                title: "All Pro features",
+                message: "Unlock every premium feature in \(displayName)."
+            ),
+            FoundationPaywallFeature(
+                id: "themes-icons",
+                systemImage: "checkmark",
+                title: "Themes and icons",
+                message: "Use every Pro theme and alternate app icon."
+            ),
+            FoundationPaywallFeature(
+                id: "updates",
+                systemImage: "checkmark",
+                title: "Future updates",
+                message: "Get every new Pro feature as it ships."
+            ),
+        ],
+        purchaseButtonTitle: "Get Pro plan",
+        highlightedProductID: yearlyProductID,
+        privacyURL: privacyURL,
+        termsURL: termsURL
+    )
+
+    static let proPlanSettingsConfiguration = ProPlanSettingsConfiguration(
+        sectionTitle: "\(displayName) Pro",
+        activePlanTitle: "\(displayName) Pro",
+        unlockTitle: "Unlock \(displayName) Pro"
     )
 
     static func makePurchaseManager() -> PurchaseManager {
