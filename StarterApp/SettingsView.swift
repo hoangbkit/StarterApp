@@ -11,7 +11,7 @@ struct SettingsView: View {
 
     @State private var isShowingOfferCodeSheet = false
     @State private var isShowingPaywall = false
-    @State private var restoreMessage: String?
+    @State private var statusMessage: String?
 
     #if DEBUG
     @State private var isChangingPurchaseMode = false
@@ -20,17 +20,49 @@ struct SettingsView: View {
     private var appIcons: [AppIconOption] {
         [
             AppIconOption(
+                id: "default",
                 title: "Default",
                 alternateIconName: nil,
-                previewImageName: "AppIcon",
+                previewImageName: "AppIconDefaultPreview",
                 accentColor: theme.accentColor
-            )
+            ),
+            AppIconOption(
+                id: "midnight",
+                title: "Midnight",
+                alternateIconName: "AppIconMidnight",
+                previewImageName: "AppIconMidnightPreview",
+                accentColor: .indigo,
+                requiresUnlock: true
+            ),
+            AppIconOption(
+                id: "sunset",
+                title: "Sunset",
+                alternateIconName: "AppIconSunset",
+                previewImageName: "AppIconSunsetPreview",
+                accentColor: .orange,
+                requiresUnlock: true
+            ),
+            AppIconOption(
+                id: "mint",
+                title: "Mint",
+                alternateIconName: "AppIconMint",
+                previewImageName: "AppIconMintPreview",
+                accentColor: .mint,
+                requiresUnlock: true
+            ),
         ]
     }
 
     var body: some View {
         NavigationStack {
             List {
+                ProPlanSettingsSection(
+                    purchaseManager: purchases,
+                    configuration: AppConfiguration.proPlanSettingsConfiguration,
+                    onUpgrade: { isShowingPaywall = true }
+                )
+                .listRowBackground(theme.surfaceColor)
+
                 Section {
                     ThemePickerView(
                         manager: themes,
@@ -43,13 +75,15 @@ struct SettingsView: View {
                 } header: {
                     Text("App Theme")
                 } footer: {
-                    Text("Choose the theme used throughout the app.")
+                    Text("Choose the theme used throughout the app. Pro themes can be previewed before upgrading.")
                 }
                 .listRowBackground(theme.surfaceColor)
 
                 AppIconPickerSection(
                     icons: appIcons,
-                    footer: "Add alternate icon assets and AppIconOption entries when this app needs more choices.",
+                    footer: purchases.hasPro
+                        ? nil
+                        : "The Default icon is included with Free. Alternate icons require Pro.",
                     isLocked: { icon in
                         icon.requiresUnlock && !purchases.hasPro
                     },
@@ -59,70 +93,17 @@ struct SettingsView: View {
                 )
                 .listRowBackground(theme.surfaceColor)
 
-                Section {
-                    Button {
-                        Task { await restore() }
-                    } label: {
-                        HStack {
-                            Label("Restore Purchases", systemImage: "arrow.clockwise")
-                            Spacer()
-                            if purchases.isBusy {
-                                ProgressView()
-                                    .tint(theme.accentColor)
-                            }
-                        }
-                    }
-                    .disabled(purchases.isBusy)
-
+                Section("Purchases") {
                     Button {
                         isShowingOfferCodeSheet = true
                     } label: {
-                        Label("Redeem Code", systemImage: "gift")
-                    }
-                } header: {
-                    Text("Purchases")
-                }
-                .listRowBackground(theme.surfaceColor)
-
-                Section {
-                    Link(destination: AppConfiguration.supportURL) {
-                        Label("Contact Support", systemImage: "questionmark.circle")
-                    }
-
-                    Button {
-                        requestReview()
-                    } label: {
-                        Label("Rate the App", systemImage: "star")
-                    }
-
-                    if let appStoreURL = AppConfiguration.appStoreURL {
-                        ShareLink(item: appStoreURL) {
-                            Label("Share App", systemImage: "square.and.arrow.up")
-                        }
+                        Label("Redeem Offer Code", systemImage: "gift")
                     }
                 }
                 .listRowBackground(theme.surfaceColor)
 
-                Section {
-                    Link(destination: AppConfiguration.privacyURL) {
-                        Label("Privacy Policy", systemImage: "hand.raised")
-                    }
-
-                    Link(destination: AppConfiguration.termsURL) {
-                        Label("Terms of Service", systemImage: "doc.text")
-                    }
-                }
-                .listRowBackground(theme.surfaceColor)
-
-                Section {
-                    HStack {
-                        Label("Version", systemImage: "info.circle")
-                        Spacer()
-                        Text(appVersion)
-                            .foregroundStyle(theme.secondaryForegroundColor)
-                    }
-                }
-                .listRowBackground(theme.surfaceColor)
+                aboutSection
+                    .listRowBackground(theme.surfaceColor)
 
                 #if DEBUG
                 developerSection
@@ -147,25 +128,56 @@ struct SettingsView: View {
             }
             .offerCodeRedemption(isPresented: $isShowingOfferCodeSheet)
             .sheet(isPresented: $isShowingPaywall) {
-                PaywallView(
-                    purchaseManager: purchases,
-                    configuration: AppConfiguration.paywallConfiguration
+                ClaudePaywallView(
+                    purchases: purchases,
+                    configuration: AppConfiguration.claudePaywallConfiguration
                 )
             }
             .alert(
-                "Restore Purchases",
+                AppConfiguration.displayName,
                 isPresented: Binding(
-                    get: { restoreMessage != nil },
-                    set: { if !$0 { restoreMessage = nil } }
+                    get: { statusMessage != nil },
+                    set: { if !$0 { statusMessage = nil } }
                 )
             ) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text(restoreMessage ?? "")
+                Text(statusMessage ?? "")
             }
         }
         .tint(theme.accentColor)
         .animation(.smooth, value: theme.id)
+    }
+
+    private var aboutSection: some View {
+        Section("About") {
+            Link(destination: AppConfiguration.supportURL) {
+                Label("Contact Support", systemImage: "questionmark.circle")
+            }
+
+            Button {
+                requestReview()
+            } label: {
+                Label("Rate the App", systemImage: "star")
+            }
+
+            if let appStoreURL = AppConfiguration.appStoreURL {
+                ShareLink(item: appStoreURL) {
+                    Label("Share App", systemImage: "square.and.arrow.up")
+                }
+            }
+
+            Link(destination: AppConfiguration.privacyURL) {
+                Label("Privacy Policy", systemImage: "hand.raised")
+            }
+
+            Link(destination: AppConfiguration.termsURL) {
+                Label("Terms of Service", systemImage: "doc.text")
+            }
+
+            LabeledContent("Version", value: appVersion)
+            LabeledContent("Built with", value: "AppFoundation 0.1.11")
+        }
     }
 
     #if DEBUG
@@ -186,24 +198,39 @@ struct SettingsView: View {
             )
             .disabled(purchases.isBusy || isChangingPurchaseMode)
 
-            LabeledContent("Purchase mode", value: purchases.isUsingSimulatedPurchases ? "Simulated" : "Live StoreKit")
+            LabeledContent(
+                "Purchase mode",
+                value: purchases.isUsingSimulatedPurchases ? "Simulated" : "Live StoreKit"
+            )
             LabeledContent("Pro entitlement", value: developerEntitlementTitle)
 
             Button("Reset Simulated Purchases", systemImage: "arrow.counterclockwise") {
                 Task {
                     await purchases.resetSimulatedPurchases()
-                    restoreMessage = "Simulated purchases were reset."
+                    statusMessage = "Simulated purchases were reset."
                 }
             }
             .disabled(!purchases.isUsingSimulatedPurchases || purchases.isBusy || isChangingPurchaseMode)
 
-            Button("Show Paywall", systemImage: "creditcard.fill") {
+            Button("Show Claude Paywall", systemImage: "creditcard.fill") {
                 isShowingPaywall = true
+            }
+
+            NavigationLink {
+                StarterScreenshotStudioView()
+            } label: {
+                Label("Screenshot Studio", systemImage: "photo.stack.fill")
+            }
+
+            NavigationLink {
+                StarterPromoVideoStudioView()
+            } label: {
+                Label("Promo Video Studio", systemImage: "film.stack.fill")
             }
         } header: {
             Text("Developer")
         } footer: {
-            Text("Debug-only AppFoundation purchase controls and presentation previews. Release builds always use live StoreKit.")
+            Text("Debug-only purchase controls, presentation previews, and AppFoundation production studios.")
         }
     }
 
@@ -220,18 +247,6 @@ struct SettingsView: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
-    }
-
-    private func restore() async {
-        switch await purchases.restorePurchases() {
-        case .restored:
-            restoreMessage = "Your purchases have been restored."
-        case .nothingToRestore:
-            restoreMessage = "No previous purchases were found."
-        case .failed(let failure):
-            restoreMessage = failure.message
-            purchases.clearActivity()
-        }
     }
 }
 
