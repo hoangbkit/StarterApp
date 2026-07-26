@@ -9,7 +9,6 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
 
-    @State private var isShowingOfferCodeSheet = false
     @State private var isShowingPaywall = false
     @State private var statusMessage: String?
 
@@ -74,16 +73,12 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 } header: {
                     Text("App Theme")
-                } footer: {
-                    Text("Choose the theme used throughout the app. Pro themes can be previewed before upgrading.")
                 }
                 .listRowBackground(theme.surfaceColor)
 
                 AppIconPickerSection(
                     icons: appIcons,
-                    footer: purchases.hasPro
-                        ? nil
-                        : "The Default icon is included with Free. Alternate icons require Pro.",
+                    footer: nil,
                     isLocked: { icon in
                         icon.requiresUnlock && !purchases.hasPro
                     },
@@ -91,15 +86,6 @@ struct SettingsView: View {
                         isShowingPaywall = true
                     }
                 )
-                .listRowBackground(theme.surfaceColor)
-
-                Section("Purchases") {
-                    Button {
-                        isShowingOfferCodeSheet = true
-                    } label: {
-                        Label("Redeem Offer Code", systemImage: "gift")
-                    }
-                }
                 .listRowBackground(theme.surfaceColor)
 
                 aboutSection
@@ -126,7 +112,6 @@ struct SettingsView: View {
                     .fontWeight(.semibold)
                 }
             }
-            .offerCodeRedemption(isPresented: $isShowingOfferCodeSheet)
             .sheet(isPresented: $isShowingPaywall) {
                 ClaudePaywallView(
                     purchases: purchases,
@@ -176,7 +161,6 @@ struct SettingsView: View {
             }
 
             LabeledContent("Version", value: appVersion)
-            LabeledContent("Built with", value: "AppFoundation 0.1.11")
         }
     }
 
@@ -227,10 +211,10 @@ struct SettingsView: View {
             } label: {
                 Label("Promo Video Studio", systemImage: "film.stack.fill")
             }
+
+            LabeledContent("Built with", value: "AppFoundation 0.1.11")
         } header: {
             Text("Developer")
-        } footer: {
-            Text("Debug-only purchase controls, presentation previews, and AppFoundation production studios.")
         }
     }
 

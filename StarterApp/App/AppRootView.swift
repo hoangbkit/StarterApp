@@ -34,9 +34,7 @@ struct AppRootView: View {
                     }
 
                 case .main:
-                    ContentView {
-                        router.showOnboarding()
-                    }
+                    ContentView()
 
                 case .failed(let message):
                     StarterThemeCard(theme: theme, emphasis: .prominent, padding: 24) {

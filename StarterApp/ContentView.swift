@@ -51,14 +51,8 @@ struct ContentView: View {
     @Environment(PurchaseManager.self) private var purchases
     @Environment(\.appFoundationTheme) private var theme
 
-    let onShowOnboarding: () -> Void
-
     @State private var isShowingPaywall = false
     @State private var isShowingSettings = false
-
-    init(onShowOnboarding: @escaping () -> Void = {}) {
-        self.onShowOnboarding = onShowOnboarding
-    }
 
     var body: some View {
         NavigationStack {
@@ -69,14 +63,6 @@ struct ContentView: View {
                     VStack(spacing: 18) {
                         heroCard
                         featuresCard
-                        entitlementCard
-
-                        Button {
-                            onShowOnboarding()
-                        } label: {
-                            Label("Replay Onboarding", systemImage: "rectangle.stack.fill")
-                        }
-                        .buttonStyle(StarterSecondaryButtonStyle(theme: theme))
 
                         #if DEBUG
                         if purchases.isUsingSimulatedPurchases {
@@ -251,66 +237,6 @@ struct ContentView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private var entitlementCard: some View {
-        StarterThemeCard(theme: theme, emphasis: .quiet, padding: 18, cornerRadius: 24) {
-            VStack(alignment: .leading, spacing: 16) {
-                StarterEyebrow(
-                    title: "StoreKit status",
-                    systemImage: entitlementIcon,
-                    theme: theme
-                )
-
-                HStack(spacing: 13) {
-                    StarterSymbolBadge(
-                        systemImage: entitlementIcon,
-                        theme: theme,
-                        size: 48
-                    )
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(entitlementTitle)
-                            .font(.headline)
-                            .foregroundStyle(theme.primaryForegroundColor)
-                        Text(entitlementMessage)
-                            .font(.subheadline)
-                            .foregroundStyle(theme.secondaryForegroundColor)
-                    }
-
-                    Spacer(minLength: 0)
-                }
-
-                entitlementAction
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var entitlementAction: some View {
-        switch purchases.entitlementState {
-        case .checking:
-            HStack(spacing: 10) {
-                ProgressView()
-                    .tint(theme.accentColor)
-                Text("Checking Pro access…")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(theme.secondaryForegroundColor)
-            }
-
-        case .inactive:
-            Button {
-                isShowingPaywall = true
-            } label: {
-                Label("Open Claude Paywall", systemImage: "crown.fill")
-            }
-            .buttonStyle(StarterPrimaryButtonStyle(theme: theme))
-
-        case .active:
-            Label("Pro unlocked", systemImage: "checkmark.seal.fill")
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(theme.accentColor)
-        }
-    }
-
     private func technologyBadge(_ title: String, systemImage: String) -> some View {
         Label(title, systemImage: systemImage)
             .font(.caption2.weight(.bold))
@@ -323,32 +249,6 @@ struct ContentView: View {
             }
     }
 
-    private var entitlementTitle: String {
-        switch purchases.entitlementState {
-        case .checking: "Checking premium access"
-        case .inactive: "Free plan"
-        case .active: "StarterApp Pro is active"
-        }
-    }
-
-    private var entitlementMessage: String {
-        switch purchases.entitlementState {
-        case .checking:
-            "Verifying your current App Store entitlement."
-        case .inactive:
-            "Test monthly and yearly plans using StoreKit or the Debug purchase simulator."
-        case .active:
-            "Every premium feature and Pro theme is available."
-        }
-    }
-
-    private var entitlementIcon: String {
-        switch purchases.entitlementState {
-        case .checking: "clock.arrow.circlepath"
-        case .inactive: "lock.fill"
-        case .active: "crown.fill"
-        }
-    }
 }
 
 #Preview {

@@ -132,7 +132,6 @@ enum AppConfiguration {
                 message: "Get every new Pro feature as it ships."
             ),
         ],
-        purchaseButtonTitle: "Get Pro plan",
         highlightedProductID: yearlyProductID,
         privacyURL: privacyURL,
         termsURL: termsURL
@@ -147,7 +146,7 @@ enum AppConfiguration {
     static func makePurchaseManager() -> PurchaseManager {
         PurchaseManager(
             configuration: purchaseConfiguration,
-            simulated: isSimulatedPurchaseModeEnabled,
+            simulated: true,
             simulatedProducts: simulatedProducts,
             simulatedPersistenceKey: simulatedPurchasePersistenceKey
         )
