@@ -46,7 +46,7 @@ features:
     widgets: false
     swiftData: false
     appGroups: false
-    alternateAppIcons: false
+    alternateAppIcons: true
     documentTypes: false
 
 rename:
