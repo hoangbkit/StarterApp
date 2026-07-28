@@ -23,8 +23,8 @@ enum AppConfiguration {
         return URL(string: "https://apps.apple.com/app/id\(appStoreID)")
     }
 
-    static let monthlyProductID = "com.hoangbkit.starterapp.pro.monthly"
     static let yearlyProductID = "com.hoangbkit.starterapp.pro.yearly"
+    static let lifetimeProductID = "com.hoangbkit.starterapp.pro.lifetime"
 
     static var simulatedPurchaseModeDefaultsKey: String {
         "\(bundleIdentifier).developer.simulated-purchases-enabled"
@@ -42,76 +42,57 @@ enum AppConfiguration {
     static let privacyURL = URL(string: "https://example.com/privacy")!
     static let termsURL = URL(string: "https://example.com/terms")!
 
-    static let purchaseConfiguration = PurchaseConfiguration(
-        productIDs: [
-            monthlyProductID,
-            yearlyProductID,
-        ],
-        preferredProductID: yearlyProductID
-    )
-
-    static let simulatedProducts: [StoreProduct] = [
-        StoreProduct(
-            id: monthlyProductID,
-            displayName: "\(displayName) Pro Monthly",
-            description: "Monthly access to every \(displayName) Pro feature.",
-            displayPrice: "$4.99",
-            price: 4.99,
-            subscriptionPeriod: .init(value: 1, unit: .month)
+    static let purchaseFeatures: [PurchaseFeature] = [
+        PurchaseFeature(
+            id: "all-features",
+            title: "All Pro features",
+            freeValue: "Limited",
+            proValue: "Unlimited"
         ),
-        StoreProduct(
-            id: yearlyProductID,
-            displayName: "\(displayName) Pro Yearly",
-            description: "Annual access to every \(displayName) Pro feature.",
-            displayPrice: "$39.99",
-            price: 39.99,
-            subscriptionPeriod: .init(value: 1, unit: .year)
+        PurchaseFeature(
+            id: "themes-icons",
+            title: "Themes and icons",
+            freeValue: "Default",
+            proValue: "All"
+        ),
+        PurchaseFeature(
+            id: "updates",
+            title: "Future updates",
+            freeValue: "Core",
+            proValue: "Included"
         ),
     ]
 
-    static var isSimulatedPurchaseModeEnabled: Bool {
-        #if DEBUG
-        UserDefaults.standard.bool(forKey: simulatedPurchaseModeDefaultsKey)
-        #else
-        false
-        #endif
-    }
-
-    static let paywallConfiguration = PaywallConfiguration(
-        title: "Get more \(displayName)",
-        subtitle: "Choose the plan that's right for you",
-        planTitle: "\(displayName) Pro",
-        planSubtitle: "Everything you need, without limits",
-        features: [
-            PaywallFeature(
-                id: "all-features",
-                systemImage: "sparkles",
-                title: "All Pro features",
-                message: "Unlock every premium feature in \(displayName)."
-            ),
-            PaywallFeature(
-                id: "updates",
-                systemImage: "arrow.down.circle",
-                title: "Future updates",
-                message: "Get every new Pro feature as it ships."
-            ),
-            PaywallFeature(
-                id: "limits",
-                systemImage: "infinity",
-                title: "No limits",
-                message: "Remove free-plan usage limits."
-            ),
+    static let purchaseConfiguration = PurchaseConfiguration(
+        productIDs: [
+            yearlyProductID,
+            lifetimeProductID,
         ],
-        preferredProductID: yearlyProductID,
-        highlightedProductID: yearlyProductID,
-        purchaseButtonTitle: "Get Pro plan",
-        privacyURL: privacyURL,
-        termsURL: termsURL
+        preferredProductID: lifetimeProductID,
+        features: purchaseFeatures
     )
 
-    static let claudePaywallConfiguration = FoundationPaywallConfiguration(
-        title: "Get more \(displayName)",
-        subtitle: "Choose monthly or yearly access",
+    static let simulatedProducts: [PurchaseProduct] = [
+        PurchaseProduct(
+            id: yearlyProductID,
+            displayName: "\(displayName) Pro Yearly",
+            description: "Annual access to every \(displayName) Pro feature.",
+            displayPrice: "$9.99",
+            price: 9.99,
+            subscriptionPeriod: .init(value: 1, unit: .year)
+        ),
+        PurchaseProduct(
+            id: lifetimeProductID,
+            displayName: "\(displayName) Pro Lifetime",
+            description: "Pay once and keep \(displayName) Pro forever.",
+            displayPrice: "$24.99",
+            price: 24.99
+        ),
+    ]
+
+    static let proPaywallConfiguration = FoundationPaywallConfiguration(
+        title: "Unlock \(displayName) Pro",
+        subtitle: "Choose yearly access or pay once for lifetime access.",
         features: [
             FoundationPaywallFeature(
                 id: "all-features",
@@ -132,9 +113,25 @@ enum AppConfiguration {
                 message: "Get every new Pro feature as it ships."
             ),
         ],
-        highlightedProductID: yearlyProductID,
+        purchaseButtonTitle: "Continue",
+        highlightedProductID: lifetimeProductID,
         privacyURL: privacyURL,
         termsURL: termsURL
+    )
+
+    static let proUpsellConfiguration = LimitReachedUpsellConfiguration(
+        title: "Unlock more with Pro",
+        message: "Keep using the free foundation, or unlock every premium theme, icon, and feature.",
+        symbolName: "crown.fill",
+        comparisonTitle: "Free vs Pro",
+        comparisonSubtitle: "Choose the access level that fits your app.",
+        unlockButtonTitle: "View Pro plans",
+        comparisonAccessibilityLabel: "StarterApp Free and Pro feature comparison"
+    )
+
+    static let proCelebrationConfiguration = FoundationProCelebrationConfiguration(
+        navigationTitle: "\(displayName) Pro",
+        comparisonAccessibilityLabel: "StarterApp Free and Pro comparison"
     )
 
     static let proPlanSettingsConfiguration = ProPlanSettingsConfiguration(
