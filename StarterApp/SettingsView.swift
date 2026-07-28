@@ -62,29 +62,21 @@ struct SettingsView: View {
                 )
                 .listRowBackground(theme.surfaceColor)
 
-                Section {
+                Section("App Theme") {
                     ThemePickerView(
                         manager: themes,
                         title: nil,
-                        onRequestUpgrade: {
-                            isShowingPaywall = true
-                        }
+                        onRequestUpgrade: { isShowingPaywall = true }
                     )
                     .padding(.vertical, 4)
-                } header: {
-                    Text("App Theme")
                 }
                 .listRowBackground(theme.surfaceColor)
 
                 AppIconPickerSection(
                     icons: appIcons,
                     footer: nil,
-                    isLocked: { icon in
-                        icon.requiresUnlock && !purchases.hasPro
-                    },
-                    onRequestUnlock: { _ in
-                        isShowingPaywall = true
-                    }
+                    isLocked: { $0.requiresUnlock && !purchases.hasPro },
+                    onRequestUnlock: { _ in isShowingPaywall = true }
                 )
                 .listRowBackground(theme.surfaceColor)
 
@@ -106,16 +98,14 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .fontWeight(.semibold)
+                    Button("Done") { dismiss() }
+                        .fontWeight(.semibold)
                 }
             }
             .sheet(isPresented: $isShowingPaywall) {
-                ClaudePaywallView(
+                ProPaywallView(
                     purchases: purchases,
-                    configuration: AppConfiguration.claudePaywallConfiguration
+                    configuration: AppConfiguration.proPaywallConfiguration
                 )
             }
             .alert(
@@ -166,7 +156,7 @@ struct SettingsView: View {
 
     #if DEBUG
     private var developerSection: some View {
-        Section {
+        Section("Developer") {
             Toggle(
                 "Use Simulated Purchases",
                 isOn: Binding(
@@ -196,7 +186,7 @@ struct SettingsView: View {
             }
             .disabled(!purchases.isUsingSimulatedPurchases || purchases.isBusy || isChangingPurchaseMode)
 
-            Button("Show Claude Paywall", systemImage: "creditcard.fill") {
+            Button("Show Pro Paywall", systemImage: "creditcard.fill") {
                 isShowingPaywall = true
             }
 
@@ -212,9 +202,7 @@ struct SettingsView: View {
                 Label("Promo Video Studio", systemImage: "film.stack.fill")
             }
 
-            LabeledContent("Built with", value: "AppFoundation 0.1.11")
-        } header: {
-            Text("Developer")
+            LabeledContent("Built with", value: "AppFoundation 0.1.14")
         }
     }
 
