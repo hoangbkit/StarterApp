@@ -51,12 +51,12 @@ struct StarterScreenshotStudioView: View {
 
             ScreenshotDefinition(
                 id: "pro",
-                title: "Claude Paywall",
+                title: "Pro Paywall",
                 filename: "03 Upgrade with a focused Pro plan"
             ) {
-                ClaudePaywallScreenshotTemplate(
+                ProPaywallScreenshotTemplate(
                     purchases: screenshotPurchases,
-                    configuration: AppConfiguration.claudePaywallConfiguration
+                    configuration: AppConfiguration.proPaywallConfiguration
                 )
             }
         }
@@ -188,7 +188,7 @@ private struct StarterStudioVisual: View {
                 .font(.system(size: 30, weight: .black, design: .rounded))
 
             HStack(spacing: 12) {
-                StarterStudioMetric(value: "0.1.11", label: "AppFoundation")
+                StarterStudioMetric(value: "0.1.14", label: "AppFoundation")
                 StarterStudioMetric(value: "Swift 6", label: "Strict concurrency")
             }
         }
