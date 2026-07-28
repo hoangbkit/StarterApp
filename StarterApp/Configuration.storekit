@@ -1,7 +1,23 @@
 {
   "identifier" : "6E4B1B6E-0B2A-4F0A-9C1D-2F7B6A3D8E10",
   "nonRenewingSubscriptions" : [],
-  "products" : [],
+  "products" : [
+    {
+      "displayPrice" : "24.99",
+      "familyShareable" : false,
+      "internalID" : "5C3D4E5F-6071-4283-A394-B5C6D7E8F901",
+      "localizations" : [
+        {
+          "description" : "Pay once and unlock every Pro feature in StarterApp forever",
+          "displayName" : "Pro Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.hoangbkit.starterapp.pro.lifetime",
+      "referenceName" : "Pro Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
   "settings" : {
     "_askToBuyEnabled" : false,
     "_locale" : "en_US",
@@ -17,28 +33,7 @@
         {
           "adHocOffers" : [],
           "codeOffers" : [],
-          "displayPrice" : "4.99",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "3A1B2C3D-4E5F-4061-8172-93A4B5C6D7E8",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "Unlock every Pro feature in StarterApp",
-              "displayName" : "Pro Monthly",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.hoangbkit.starterapp.pro.monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Pro Monthly",
-          "subscriptionGroupID" : "21A0F5B2-6C9E-4A2B-8D3F-9E1A2B3C4D5E",
-          "type" : "RecurringSubscription"
-        },
-        {
-          "adHocOffers" : [],
-          "codeOffers" : [],
-          "displayPrice" : "39.99",
+          "displayPrice" : "9.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "4B2C3D4E-5F60-4172-9283-A4B5C6D7E8F9",
