@@ -24,7 +24,7 @@ private let starterFeatures: [StarterFeature] = [
     StarterFeature(
         id: "purchases",
         title: "StoreKit purchases",
-        message: "Monthly and yearly plans, verified entitlements, restore, offer codes, and Debug simulation.",
+        message: "Yearly and lifetime plans, verified entitlements, restore, and Debug simulation.",
         systemImage: "creditcard.fill"
     ),
     StarterFeature(
@@ -52,6 +52,8 @@ struct ContentView: View {
     @Environment(\.appFoundationTheme) private var theme
 
     @State private var isShowingPaywall = false
+    @State private var isShowingUpsell = false
+    @State private var isShowingCelebration = false
     @State private var isShowingSettings = false
 
     var body: some View {
@@ -93,25 +95,51 @@ struct ContentView: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        isShowingPaywall = true
+                        if purchases.hasPro {
+                            isShowingCelebration = true
+                        } else {
+                            isShowingPaywall = true
+                        }
                     } label: {
                         Image(systemName: "crown.fill")
                     }
                     .foregroundStyle(theme.accentColor)
-                    .accessibilityLabel("Open Pro")
+                    .accessibilityLabel(purchases.hasPro ? "Open Pro celebration" : "Open Pro paywall")
                 }
             }
         }
         .tint(theme.accentColor)
         .animation(.smooth, value: theme.id)
         .sheet(isPresented: $isShowingPaywall) {
-            ClaudePaywallView(
+            ProPaywallView(
                 purchases: purchases,
-                configuration: AppConfiguration.claudePaywallConfiguration
+                configuration: AppConfiguration.proPaywallConfiguration
+            )
+        }
+        .sheet(isPresented: $isShowingUpsell) {
+            ProUpsellView(
+                configuration: AppConfiguration.proUpsellConfiguration,
+                onUnlockPro: {
+                    isShowingUpsell = false
+                    Task { @MainActor in
+                        await Task.yield()
+                        isShowingPaywall = true
+                    }
+                }
+            )
+        }
+        .sheet(isPresented: $isShowingCelebration) {
+            ProCelebrationView(
+                configuration: AppConfiguration.proCelebrationConfiguration
             )
         }
         .sheet(isPresented: $isShowingSettings) {
             SettingsView()
+        }
+        .onChange(of: purchases.hasPro) { wasPro, hasPro in
+            if !wasPro && hasPro {
+                isShowingCelebration = true
+            }
         }
     }
 
@@ -164,6 +192,14 @@ struct ContentView: View {
                     technologyBadge("iOS 26", systemImage: "iphone")
                     technologyBadge("Swift 6", systemImage: "swift")
                     technologyBadge("XcodeGen", systemImage: "hammer.fill")
+                }
+
+                if !purchases.hasPro {
+                    Button("Compare Free and Pro", systemImage: "crown.fill") {
+                        isShowingUpsell = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
@@ -248,7 +284,6 @@ struct ContentView: View {
                 Capsule().stroke(theme.borderColor, lineWidth: 1)
             }
     }
-
 }
 
 #Preview {
